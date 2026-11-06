@@ -1,0 +1,396 @@
+/* dashboard.css - halaman pencatatan mata kuliah */
+
+.row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    align-items: stretch;
+}
+
+/* ===== form tambah matkul ===== */
+.card-form {
+    width: 320px;
+    flex-shrink: 0;
+    padding: 30px 24px;
+}
+
+.card-form .card-title {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Search wrapper & autocomplete dropdown */
+.search-wrapper {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    padding: 0 12px;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+    border-color: #93d38f;
+    box-shadow: 0 0 0 2px rgba(147, 211, 143, 0.25);
+}
+
+.search-box .material-symbols-outlined {
+    font-size: 18px;
+    color: #999;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 11px 0;
+    font-size: 13px;
+    font-family: inherit;
+    background: transparent;
+}
+
+/* Rekomendasi / Suggestion dropdown pop-up */
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+}
+
+.suggestion-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f2f2f2;
+    transition: background-color 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background-color: #f1f9ef;
+}
+
+.sugg-nama {
+    font-size: 13px;
+    font-weight: 500;
+    color: #222;
+}
+
+.sugg-kode {
+    font-size: 11px;
+    color: #438a3d;
+    font-weight: 500;
+}
+
+.sugg-highlight {
+    background-color: #e5f7e3;
+    color: #1b5e14;
+    font-weight: 600;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.sugg-empty {
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+}
+
+.card-form .select {
+    color: #444;
+    padding-left: 14px;
+    font-size: 13px;
+}
+
+/* ===== tabel matkul ===== */
+.card-table {
+    flex: 1;
+    padding: 24px 0 10px 0;
+    overflow-x: auto;
+}
+
+.card-table .card-title {
+    padding: 0 24px;
+    font-size: 18px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.table th {
+    font-weight: 500;
+    color: #333;
+    padding: 12px 14px;
+    background-color: #f7f7f7;
+    text-align: center;
+    font-size: 12px;
+}
+
+.table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table .td-jadwal {
+    text-align: left;
+}
+
+.jadwal-item {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+    margin-bottom: 4px;
+}
+
+.jadwal-item:last-child {
+    margin-bottom: 0;
+}
+
+.jadwal-item small {
+    font-size: 11px;
+    color: #777;
+}
+
+.table .empty {
+    color: #aaa;
+    padding: 40px 0;
+    border-bottom: none;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.btn-icon:hover {
+    color: #c0392b;
+    background-color: #fde2e2;
+}
+
+.btn-icon .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* ===== kalender ===== */
+.card-calendar {
+    border-radius: 14px;
+    padding: 24px 28px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.card-calendar .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.legend {
+    display: flex;
+    gap: 24px;
+    font-size: 12px;
+    color: #555;
+}
+
+.dot {
+    display: inline-block;
+    width: 14px;
+    height: 8px;
+    border-radius: 4px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.dot-kuliah {
+    background-color: #a8dca3;
+}
+
+.dot-ujian {
+    background-color: #eafbe6;
+    border: 1px solid #c5eec0;
+}
+
+.calendar {
+    border: 1px solid #e6e8ec;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 12px;
+}
+
+/* tiap baris kalender pakai grid yang sama biar kolomnya lurus */
+.cal-row {
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr);
+}
+
+.cal-row > div {
+    border-right: 1px solid #e6e8ec;
+}
+
+.cal-row > div:last-child {
+    border-right: none;
+}
+
+.cal-head {
+    background-color: #f8f9fb;
+    border-bottom: 1px solid #e6e8ec;
+    font-weight: 600;
+}
+
+.cal-head > div {
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.cal-jam {
+    text-align: center;
+    color: #888;
+    font-weight: 500;
+}
+
+.cal-head .cal-jam {
+    font-size: 11px;
+}
+
+/* baris ujian */
+.cal-ujian {
+    border-bottom: 1px solid #e6e8ec;
+    background-color: #fdfdfd;
+}
+
+.label-ujian {
+    background-color: #fdeeee;
+    color: #e04848;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.cal-ujian-cell {
+    padding: 6px 8px;
+    min-height: 44px;
+}
+
+.ujian-chip {
+    background-color: #eafbe6;
+    border: 1px solid #d3f3cc;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+}
+
+.ujian-chip b {
+    font-weight: 600;
+    font-size: 12px;
+    color: #1f4d1f;
+}
+
+.ujian-chip small {
+    font-size: 11px;
+    color: #555;
+}
+
+/* baris jam */
+.time-slot {
+    height: 48px;
+    padding-top: 6px;
+    font-size: 11px;
+    border-bottom: 1px solid #f0f1f4;
+}
+
+.cal-day {
+    position: relative;
+}
+
+.cal-line {
+    height: 48px;
+    border-bottom: 1px solid #f0f1f4;
+}
+
+.cal-event {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    background-color: #a8dca3;
+    border: 1px solid #93cf8e;
+    border-radius: 7px;
+    padding: 6px 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+    z-index: 2;
+}
+
+.cal-event b {
+    font-weight: 600;
+    font-size: 12px;
+    color: #1f4d1f;
+}
+
+.cal-event span {
+    color: #264e23;
+    font-size: 11px;
+}
+
+.cal-event small {
+    margin-top: auto;
+    font-weight: 600;
+    font-size: 10px;
+    color: #1f4d1f;
+}

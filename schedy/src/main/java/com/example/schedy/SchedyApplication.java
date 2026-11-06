@@ -1,0 +1,13 @@
+package com.example.schedy;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SchedyApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SchedyApplication.class, args);
+	}
+
+}

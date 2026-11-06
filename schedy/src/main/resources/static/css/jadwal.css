@@ -1,0 +1,76 @@
+/* jadwal.css - halaman lihat jadwal presentasi tugas besar */
+
+.jadwal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 900px;
+}
+
+.jadwal-card {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 18px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.jadwal-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.jadwal-subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.jadwal-kelompok {
+    font-size: 24px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 14px;
+}
+
+.jadwal-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #555;
+}
+
+.meta-row .material-symbols-outlined {
+    font-size: 18px;
+    color: #777;
+}
+
+.meta-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.empty-card {
+    background-color: #fff;
+    border-radius: 18px;
+    padding: 40px;
+    text-align: center;
+    color: #888;
+    border: 1px dashed #d9d9d9;
+    font-size: 14px;
+}
+

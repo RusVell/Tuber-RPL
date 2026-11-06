@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ================= SIDEBAR MAHASISWA ================= -->
+<!-- cara pakai: th:replace="~{fragments/layoutMahasiswa :: sidebar('matkul')}" -->
+<aside class="sidebar" th:fragment="sidebar(menu)">
+    <div class="logo">Schedy</div>
+
+    <nav class="menu">
+        <a th:href="@{/mahasiswa}" class="menu-item" th:classappend="${menu == 'matkul'} ? 'active'">
+            <span class="material-symbols-outlined">dashboard</span>
+            Pencatatan Mata Kuliah
+        </a>
+        <a th:href="@{/mahasiswa/jadwal}" class="menu-item" th:classappend="${menu == 'jadwal'} ? 'active'">
+            <span class="material-symbols-outlined">calendar_month</span>
+            Lihat Jadwal
+        </a>
+        <a th:href="@{/mahasiswa/kelompok}" class="menu-item" th:classappend="${menu == 'kelompok'} ? 'active'">
+            <span class="material-symbols-outlined">search</span>
+            Daftarkan kelompok
+        </a>
+    </nav>
+
+    <a th:href="@{/logout}" class="menu-item logout" onclick="return confirm('Apakah anda yakin ingin log out?')">
+        <span class="material-symbols-outlined">logout</span>
+        Log Out
+    </a>
+</aside>
+
+<!-- ================= TOPBAR ================= -->
+<header class="topbar" th:fragment="topbar">
+    <form th:action="@{/semester/pilih}" method="post" class="semester-form">
+        <select name="idSemester" class="semester-select" onchange="this.form.submit()">
+            <option th:if="${#lists.isEmpty(semesterList)}" value="">Belum ada semester</option>
+            <option th:each="s : ${semesterList}"
+                    th:value="${s.idSemester}"
+                    th:selected="${s.idSemester == idSemester}"
+                    th:text="'Semester ' + ${s.jenisSemester} + ' ' + ${#strings.substring(s.tahunAjaran, 2, 4)} + '/' + ${#strings.substring(s.tahunAjaran, 7, 9)}">
+                Semester Ganjil 24/25
+            </option>
+        </select>
+    </form>
+
+    <div class="profile">
+        <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(namaUser, 0, 1))}">N</div>
+        <div class="profile-text">
+            <span class="profile-name" th:text="${namaUser}">Nama</span>
+            <span class="profile-role">Mahasiswa</span>
+        </div>
+    </div>
+</header>
+
+</body>
+</html>
+

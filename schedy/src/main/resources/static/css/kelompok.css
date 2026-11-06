@@ -1,0 +1,419 @@
+/* kelompok.css - halaman pengelolaan & daftarkan kelompok tugas besar */
+
+/* ===== top card selector ===== */
+.top-selector-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    padding: 28px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 34px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.top-selector-left .selector-label {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.top-selector-left h2 {
+    font-size: 24px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 4px;
+}
+
+.top-selector-left .selector-sub {
+    font-size: 13px;
+    color: #777;
+}
+
+.top-selector-right {
+    min-width: 320px;
+}
+
+.top-selector-right .dropdown-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.select-matkul {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+    font-size: 13px;
+    background-color: #fff;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9' viewBox='0 0 16 9'%3E%3Cpath d='M1 1l7 7 7-7' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+}
+
+/* ===== daftar kelompok section ===== */
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 2px;
+}
+
+.section-desc {
+    font-size: 13px;
+    color: #888;
+}
+
+.kelompok-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+}
+
+.kelompok-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 18px;
+    padding: 24px 26px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.card-nama-kelompok {
+    font-size: 22px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 2px;
+}
+
+.card-matkul-name {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 18px;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 12px 0 16px 0;
+}
+
+/* badge status anggota */
+.badge-container {
+    margin-bottom: 16px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.badge-warning {
+    background-color: #f6d854;
+    color: #4a3b00;
+}
+
+.badge-success {
+    background-color: #9edc9b;
+    color: #1a4d1a;
+}
+
+.card-action {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+}
+
+.btn-kelola {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 11px;
+    color: #333;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-kelola:hover {
+    background-color: #f7f7f7;
+    border-color: #bbb;
+}
+
+.btn-kelola .material-symbols-outlined {
+    font-size: 14px;
+}
+
+/* ===== SLIDE-OVER POPUP / PANEL KELOLA TIM ===== */
+.slideover-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.35);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.slideover-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.slideover-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 440px;
+    height: 100vh;
+    background-color: #ffffff;
+    z-index: 101;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+}
+
+.slideover-panel.active {
+    transform: translateX(0);
+}
+
+.panel-header {
+    padding: 28px 30px 18px 30px;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.panel-close-btn {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #888;
+    line-height: 1;
+}
+
+.panel-close-btn:hover {
+    color: #111;
+}
+
+.panel-sub-label {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 4px;
+}
+
+.panel-title {
+    font-size: 22px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 2px;
+}
+
+.panel-course {
+    font-size: 13px;
+    color: #888;
+}
+
+.panel-body {
+    padding: 24px 30px;
+    flex: 1;
+}
+
+/* baris komposisi anggota */
+.komposisi-box {
+    background-color: #f7f9f7;
+    border: 1px solid #e2ebe1;
+    border-radius: 10px;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.komposisi-box .ratio {
+    font-weight: 600;
+    font-size: 15px;
+    color: #1a4d1a;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #444;
+    font-weight: 500;
+    margin-bottom: 14px;
+}
+
+.summary-row .count {
+    color: #777;
+    font-weight: 400;
+}
+
+/* daftar anggota yang sudah terdaftar */
+.member-list {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+
+.member-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #222;
+}
+
+.member-npm {
+    font-size: 12px;
+    color: #777;
+}
+
+/* bagian tambah anggota */
+.tambah-section {
+    margin-top: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.tambah-section h4 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.tambah-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.select-calon {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.btn-add-member {
+    width: 40px;
+    height: 40px;
+    background-color: #9fd99f;
+    border: 1px solid #84cb84;
+    border-radius: 8px;
+    color: #1f4d1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-add-member:hover {
+    background-color: #8ed08e;
+}
+
+.btn-add-member .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* list anggota yang baru ditambahkan (sebelum submit) */
+.pending-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.pending-member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #effbea;
+    border: 1px solid #d5edd0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+.btn-remove-pending {
+    background: none;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* footer submit button */
+.panel-footer {
+    padding: 20px 30px 28px 30px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-submit-kelompok {
+    width: 100%;
+    background-color: #bdeab7;
+    border: 1px solid #abd9a4;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a4d1a;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-submit-kelompok:hover {
+    background-color: #aedfa8;
+}
+
