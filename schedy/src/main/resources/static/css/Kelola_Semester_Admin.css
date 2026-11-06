@@ -1,0 +1,372 @@
+/* Styling tambah kelola semester Admin */
+:root {
+    --page-background: #f5f5f5;
+    --surface: #fff;
+    --sidebar-background: #e8ffea;
+    --active-navigation: #8cd18e;
+    --text: #1f1f1f;
+    --muted: #818181;
+    --border: #d2caca;
+    --green: #bceabc;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-width: 320px;
+    background: var(--page-background);
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text);
+    background: var(--page-background);
+    font: 14px "Segoe UI", Arial, sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    width: 166px;
+    padding: 14px 12px;
+    background: var(--sidebar-background);
+}
+
+.brand {
+    display: inline-block;
+    margin: 0 0 12px;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: .1px;
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.main-navigation {
+    display: grid;
+    gap: 6px;
+}
+
+.nav-link,
+.logout-link {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    color: #4c5a60;
+    font-size: 10px;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.nav-link.active {
+    background: var(--active-navigation);
+}
+
+.nav-icon,
+.logout-icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: #53656b;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.35;
+}
+
+.logout-link {
+    margin-top: auto;
+}
+
+.logout-link:hover {
+    background: rgba(255, 255, 255, .48);
+}
+
+.page-shell {
+    min-height: 100vh;
+    margin-left: 166px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: flex-end;
+    height: 56px;
+    padding: 0 30px;
+    background: var(--surface);
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+}
+
+select {
+    width: 100%;
+    height: 100%;
+    padding: 0 34px 0 14px;
+    appearance: none;
+    border: 0;
+    outline: 0;
+    color: var(--text);
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+.semester-select,
+.field-select {
+    position: relative;
+    display: block;
+    border: 1px solid #d5d5d5;
+    border-radius: 7px;
+    background: var(--surface);
+}
+
+.semester-select {
+    width: 172px;
+    height: 34px;
+}
+
+.semester-select::after,
+.field-select::after {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    width: 9px;
+    height: 9px;
+    border-right: 1.5px solid #aaa;
+    border-bottom: 1.5px solid #aaa;
+    content: "";
+    pointer-events: none;
+    transform: translateY(-68%) rotate(45deg);
+}
+
+.semester-select select {
+    font-size: 11px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #c8c8c8;
+    border-radius: 50%;
+    background: #fafafa;
+}
+
+.profile-name {
+    display: grid;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.profile-name small {
+    color: #c5c5c5;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.semester-content {
+    width: min(620px, calc(100% - 64px));
+    padding: 40px 0 60px;
+    margin-left: 43px;
+}
+
+.page-heading {
+    margin-bottom: 22px;
+}
+
+h1,
+h2,
+p {
+    margin: 0;
+}
+
+h1 {
+    margin-bottom: 5px;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.page-heading p {
+    color: #777;
+    font-size: 11px;
+}
+
+.semester-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+}
+
+.semester-card {
+    min-height: 283px;
+    padding: 28px 25px 21px;
+    border-radius: 18px;
+    background: var(--surface);
+}
+
+.semester-card h2 {
+    margin: 0 0 23px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.semester-card form {
+    display: grid;
+    gap: 8px;
+}
+
+.semester-card label {
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.field-select {
+    height: 25px;
+}
+
+.field-select select {
+    padding-left: 9px;
+    color: #9a9a9a;
+    font-size: 10px;
+}
+
+.field-select::after {
+    right: 15px;
+    width: 11px;
+    height: 11px;
+}
+
+.semester-card button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.add-card button[type="submit"] {
+    height: 31px;
+    margin-top: 34px;
+    border: 0;
+    border-radius: 4px;
+    color: #17421d;
+    background: var(--green);
+    font-size: 12px;
+}
+
+.add-card button[type="submit"] span {
+    margin-left: 7px;
+    font-size: 19px;
+    vertical-align: -1px;
+}
+
+.card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.card-heading h2 {
+    margin: 0;
+}
+
+.count {
+    color: #8c8c8c;
+    font-size: 10px;
+}
+
+.semester-list {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.semester-list li {
+    display: flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 0 9px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 10px;
+}
+
+@media (max-width:700px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+        padding: 12px 16px;
+    }
+
+    .main-navigation {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .logout-link {
+        margin-top: 6px;
+    }
+
+    .page-shell {
+        margin-left: 0;
+    }
+
+    .topbar {
+        height: auto;
+        min-height: 56px;
+        padding: 11px 16px;
+    }
+
+    .topbar-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .semester-content {
+        width: auto;
+        padding-top: 24px;
+        margin: 0 16px;
+    }
+}
+
+@media (max-width:520px) {
+    .profile-name {
+        display: none;
+    }
+
+    .semester-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .semester-card {
+        min-height: auto;
+    }
+}
