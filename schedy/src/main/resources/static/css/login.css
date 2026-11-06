@@ -1,0 +1,109 @@
+/* login.css */
+
+/* Reset dasar */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container utama */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+/* Kotak login */
+.login-box {
+    background-color: #effbea;
+    padding: 35px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    width: 360px;
+}
+
+/* Judul */
+.title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 500;
+    color: #222;
+}
+
+/* Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Label */
+.login-form label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2f7a2f;
+}
+
+/* Input field */
+.input-field {
+    padding: 9px 14px;
+    margin-bottom: 18px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background-color: #ffffff;
+    font-size: 13px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-field::placeholder {
+    color: #bbb;
+}
+
+.input-field:focus {
+    border-color: #8fd18f;
+    box-shadow: 0 0 5px rgba(143, 209, 143, 0.5);
+}
+
+/* Tombol Sign In */
+.btn-submit {
+    margin-top: 5px;
+    background-color: #8fd18f;
+    color: #1f4d1f;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #77c277;
+}
+
+/* Pesan error */
+.error-msg {
+    background-color: #fde2e2;
+    color: #c0392b;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Info di bawah form */
+.info {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    color: #777;
+}
+

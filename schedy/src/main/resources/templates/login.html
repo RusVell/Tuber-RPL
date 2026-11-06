@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedy - Log In</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- css diambil dari folder static -->
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+
+<body>
+    <div class="container">
+
+        <main class="login-box">
+            <h1 class="title">Schedy</h1>
+
+            <!-- pesan error kalau username / password salah -->
+            <div class="error-msg" th:if="${error}" th:text="${error}"></div>
+
+            <!-- tidak ada sign up, akun dibuat oleh admin -->
+            <form class="login-form" th:action="@{/login}" method="post">
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="input-field"
+                       placeholder="Masukkan username" th:value="${username}" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="input-field"
+                       placeholder="Masukkan password" required>
+
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+
+            <p class="info">Belum punya akun? Hubungi admin.</p>
+        </main>
+
+    </div>
+</body>
+</html>
+

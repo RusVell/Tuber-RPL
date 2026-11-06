@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedy - Pencatatan Mata Kuliah</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300,0,0" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+<div class="layout">
+
+    <aside th:replace="~{fragments/layoutMahasiswa :: sidebar('matkul')}"></aside>
+
+    <div class="main">
+        <header th:replace="~{fragments/layoutMahasiswa :: topbar}"></header>
+
+        <main class="content">
+            <h1 class="page-title">Pencatatan Mata Kuliah</h1>
+
+            <!-- Notifikasi Pesan -->
+            <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <div class="row">
+
+                <!-- ============ FORM TAMBAH MATKUL ============ -->
+                <section class="card card-form">
+                    <h2 class="card-title">Tambahkan mata kuliah</h2>
+
+                    <form th:action="@{/mahasiswa/matkul/tambah}" method="post">
+                        <label class="form-label">Pilih mata kuliah &amp; kelas</label>
+
+                        <!-- Input search dengan pop-up rekomendasi (autocomplete suggestion) -->
+                        <div class="search-wrapper">
+                            <div class="search-box">
+                                <span class="material-symbols-outlined">search</span>
+                                <input type="text" id="cariMatkul" placeholder="Cari kode atau nama mata kuliah"
+                                       oninput="handleSearchInput()" onfocus="handleSearchFocus()" autocomplete="off">
+                            </div>
+
+                            <!-- Pop-up rekomendasi pencarian yang muncul di atas / bawah input saat mengetik -->
+                            <div id="searchSuggestions" class="search-suggestions">
+                                <!-- Diisi dinamis via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Dropdown kelas yang muncul sesuai hasil pencarian -->
+                        <select name="idKelas" id="pilihKelas" class="input select" required>
+                            <option value="" disabled selected id="optPlaceholder">Ketik pencarian mata kuliah di atas...</option>
+                            <option th:each="k : ${kelasTersedia}"
+                                    class="opt-kelas"
+                                    th:value="${k.idKelas}"
+                                    th:attr="data-kode=${k.mataKuliah.kodeMatkul},
+                                             data-nama=${k.mataKuliah.namaMatkul},
+                                             data-kelas=${k.namaKelas},
+                                             data-search=${k.mataKuliah.kodeMatkul} + ' ' + ${k.mataKuliah.namaMatkul}"
+                                    th:text="${k.mataKuliah.kodeMatkul} + ' - ' + ${k.mataKuliah.namaMatkul} + ' - Kelas ' + ${k.namaKelas}">
+                                AIF220 - Daspro - Kelas A
+                            </option>
+                        </select>
+
+                        <button type="submit" class="btn-green" id="btnTambahMatkul">Tambah Mata Kuliah</button>
+                    </form>
+                </section>
+
+                <!-- ============ TABEL MATKUL ============ -->
+                <section class="card card-table">
+                    <h2 class="card-title">Mata Kuliah Anda</h2>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Kode MK</th>
+                                <th>Mata Kuliah</th>
+                                <th>Kelas</th>
+                                <th>SKS</th>
+                                <th>Dosen Pengampu</th>
+                                <th>Jadwal Kuliah</th>
+                                <th>Jadwal Ujian</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${pengambilanList}">
+                                <td th:text="${p.kelas.mataKuliah.kodeMatkul}">AIF220</td>
+                                <td th:text="${p.kelas.mataKuliah.namaMatkul}">Daspro</td>
+                                <td th:text="${p.kelas.namaKelas}">A</td>
+                                <td th:text="${p.kelas.mataKuliah.sks}">4</td>
+                                <td th:text="${p.kelas.dosen != null ? p.kelas.dosen.user.nama : '-'}">Agus</td>
+
+                                <!-- jadwal kuliah -->
+                                <td class="td-jadwal">
+                                    <div th:each="jk : ${kuliahPerKelas.get(p.kelas.idKelas)}" class="jadwal-item">
+                                        <span th:text="${#strings.capitalize(#strings.toLowerCase(jk.hari))}">Senin</span>
+                                        <small th:text="${#temporals.format(jk.jamMulai, 'HH.mm')} + ' - ' + ${#temporals.format(jk.jamSelesai, 'HH.mm')}">08.00 - 09.00</small>
+                                    </div>
+                                    <span th:if="${kuliahPerKelas.get(p.kelas.idKelas) == null}" class="text-muted">-</span>
+                                </td>
+
+                                <!-- jadwal ujian -->
+                                <td class="td-jadwal">
+                                    <div th:each="ju : ${ujianPerKelas.get(p.kelas.idKelas)}" class="jadwal-item">
+                                        <span th:text="${#temporals.format(ju.tanggal, 'EEEE, d MMM')}">Senin, 4 Des</span>
+                                        <small th:text="${#temporals.format(ju.jamMulai, 'HH.mm')} + ' WIB'">08.00 WIB</small>
+                                    </div>
+                                    <span th:if="${ujianPerKelas.get(p.kelas.idKelas) == null}" class="text-muted">-</span>
+                                </td>
+
+                                <td>
+                                    <form th:action="@{/mahasiswa/matkul/hapus}" method="post"
+                                          onsubmit="return confirm('Yakin mau hapus mata kuliah ini?')">
+                                        <input type="hidden" name="idPengambilan" th:value="${p.idPengambilan}">
+                                        <button type="submit" class="btn-icon" title="Hapus">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(pengambilanList)}">
+                                <td colspan="8" class="empty">Belum ada mata kuliah yang dicatat</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <!-- ============ KALENDER ============ -->
+            <section class="card card-calendar">
+                <div class="calendar-header">
+                    <h2 class="card-title">Jadwal Kuliah &amp; Ujian Anda</h2>
+                    <div class="legend">
+                        <span><i class="dot dot-kuliah"></i> Kuliah</span>
+                        <span><i class="dot dot-ujian"></i> Ujian</span>
+                    </div>
+                </div>
+
+                <div class="calendar">
+                    <!-- baris nama hari -->
+                    <div class="cal-row cal-head">
+                        <div class="cal-jam">JAM</div>
+                        <div th:each="h : ${hariList}" th:text="${#strings.capitalize(#strings.toLowerCase(h))}">Senin</div>
+                    </div>
+
+                    <!-- baris ujian -->
+                    <div class="cal-row cal-ujian">
+                        <div class="cal-jam label-ujian">UJIAN</div>
+                        <div th:each="h : ${hariList}" class="cal-ujian-cell">
+                            <th:block th:each="ju : ${jadwalUjian}">
+                                <div class="ujian-chip" th:if="${#strings.equalsIgnoreCase(ju.hari, h)}">
+                                    <b th:text="'Ujian • ' + ${ju.kelas.mataKuliah.kodeMatkul}">Ujian • IF2101</b>
+                                    <small th:text="${#temporals.format(ju.tanggal, 'EEEE, d MMM')} + ' • ' + ${#temporals.format(ju.jamMulai, 'HH.mm')} + ' WIB'">Senin, 14 Des • 08.00 WIB</small>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+
+                    <!-- baris jam kuliah reguler -->
+                    <div class="cal-row cal-body">
+                        <div class="cal-jam">
+                            <div class="time-slot" th:each="jam : ${jamList}" th:text="${jam}">07.00</div>
+                        </div>
+
+                        <div class="cal-day" th:each="h : ${hariList}">
+                            <div class="cal-line" th:each="jam : ${jamList}"></div>
+
+                            <th:block th:each="jk : ${jadwalKuliah}">
+                                <div class="cal-event" th:if="${#strings.equalsIgnoreCase(jk.hari, h)}"
+                                     th:style="'top:' + ${jk.posisiAtas} + 'px; height:' + ${jk.tinggi} + 'px;'">
+                                    <b th:text="${jk.kelas.mataKuliah.kodeMatkul} + ' • Kelas ' + ${jk.kelas.namaKelas}">IF2101 • Kelas A</b>
+                                    <span th:text="${jk.kelas.mataKuliah.namaMatkul}">Pemrograman Berbasis Objek</span>
+                                    <small th:text="${#temporals.format(jk.jamMulai, 'HH.mm')} + ' - ' + ${#temporals.format(jk.jamSelesai, 'HH.mm')} + ' WIB'">08.00 - 10.30 WIB</small>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Ambil daftar unik mata kuliah dari opsi yang tersedia di dropdown
+    function getAvailableMatkulList() {
+        var options = document.querySelectorAll('#pilihKelas .opt-kelas');
+        var map = {};
+        options.forEach(function (opt) {
+            var kode = opt.getAttribute('data-kode');
+            var nama = opt.getAttribute('data-nama');
+            if (kode && nama && !map[kode]) {
+                map[kode] = { kode: kode, nama: nama };
+            }
+        });
+        return Object.values(map);
+    }
+
+    // Hitung kemiripan string sederhana (substring & kata awal)
+    function matchScore(query, target) {
+        query = query.toLowerCase();
+        target = target.toLowerCase();
+        if (target === query) return 100;
+        if (target.startsWith(query)) return 80;
+        var idx = target.indexOf(query);
+        if (idx !== -1) return 50 - idx;
+        // periksa kecocokan kata terpisah
+        var qWords = query.split(/\s+/);
+        var tWords = target.split(/\s+/);
+        var matchCount = 0;
+        qWords.forEach(function (qw) {
+            tWords.forEach(function (tw) {
+                if (tw.startsWith(qw) || tw.indexOf(qw) !== -1) matchCount++;
+            });
+        });
+        return matchCount > 0 ? matchCount * 10 : 0;
+    }
+
+    // Highlight teks yang cocok dengan query
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        var escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var regex = new RegExp('(' + escapedQuery + ')', 'gi');
+        return escapeHtml(text).replace(regex, '<span class="sugg-highlight">$1</span>');
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        var div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
+    }
+
+    // Saat user mengetik di search input
+    function handleSearchInput() {
+        var input = document.getElementById('cariMatkul');
+        var query = input.value.trim();
+        var suggBox = document.getElementById('searchSuggestions');
+
+        if (query.length === 0) {
+            suggBox.style.display = 'none';
+            filterKelasBySearch('');
+            return;
+        }
+
+        var list = getAvailableMatkulList();
+        var scoredList = [];
+
+        list.forEach(function (item) {
+            var scoreKode = matchScore(query, item.kode);
+            var scoreNama = matchScore(query, item.nama);
+            var maxScore = Math.max(scoreKode, scoreNama);
+            if (maxScore > 0) {
+                scoredList.push({ item: item, score: maxScore });
+            }
+        });
+
+        // Urutkan dari yang paling mirip / relevan
+        scoredList.sort(function (a, b) {
+            return b.score - a.score;
+        });
+
+        suggBox.innerHTML = '';
+
+        if (scoredList.length === 0) {
+            suggBox.innerHTML = '<div class="sugg-empty">Tidak ada mata kuliah yang cocok</div>';
+            suggBox.style.display = 'block';
+        } else {
+            scoredList.slice(0, 5).forEach(function (res) {
+                var it = res.item;
+                var div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = '<div class="sugg-nama">' + highlightMatch(it.nama, query) + '</div>' +
+                                '<div class="sugg-kode">' + highlightMatch(it.kode, query) + '</div>';
+                div.addEventListener('click', function () {
+                    pilihRekomendasi(it.nama);
+                });
+                suggBox.appendChild(div);
+            });
+            suggBox.style.display = 'block';
+        }
+
+        // Sinkronkan opsi kelas di dropdown
+        filterKelasBySearch(query);
+    }
+
+    function handleSearchFocus() {
+        var input = document.getElementById('cariMatkul');
+        if (input.value.trim().length > 0) {
+            handleSearchInput();
+        }
+    }
+
+    // Saat user mengklik salah satu item rekomendasi
+    function pilihRekomendasi(namaMatkul) {
+        var input = document.getElementById('cariMatkul');
+        input.value = namaMatkul;
+        document.getElementById('searchSuggestions').style.display = 'none';
+
+        // Filter dropdown kelas sesuai mata kuliah yang dipilih
+        filterKelasBySearch(namaMatkul);
+
+        // Otomatis fokus dan buka pilihan kelas pertama
+        var select = document.getElementById('pilihKelas');
+        var firstVisible = select.querySelector('.opt-kelas:not([style*="display: none"])');
+        if (firstVisible) {
+            firstVisible.selected = true;
+        }
+    }
+
+    // Filter opsi kelas di dalam dropdown <select>
+    function filterKelasBySearch(keyword) {
+        keyword = (keyword || '').toLowerCase().trim();
+        var select = document.getElementById('pilihKelas');
+        var options = select.querySelectorAll('.opt-kelas');
+        var placeholder = document.getElementById('optPlaceholder');
+
+        var matchCount = 0;
+
+        if (keyword.length === 0) {
+            placeholder.textContent = 'Ketik pencarian mata kuliah di atas...';
+            placeholder.selected = true;
+            options.forEach(function (opt) {
+                opt.style.display = 'none';
+            });
+            return;
+        }
+
+        options.forEach(function (opt) {
+            var searchData = (opt.getAttribute('data-search') || opt.textContent).toLowerCase();
+            if (searchData.indexOf(keyword) !== -1) {
+                opt.style.display = '';
+                matchCount++;
+            } else {
+                opt.style.display = 'none';
+            }
+        });
+
+        if (matchCount > 0) {
+            placeholder.textContent = 'Pilih kelas (' + matchCount + ' kelas tersedia)';
+        } else {
+            placeholder.textContent = 'Mata kuliah tidak ditemukan / sudah dicatat';
+            placeholder.selected = true;
+        }
+    }
+
+    // Tutup pop-up rekomendasi saat klik di luar kotak pencarian
+    document.addEventListener('click', function (e) {
+        var wrapper = document.querySelector('.search-wrapper');
+        var suggBox = document.getElementById('searchSuggestions');
+        if (wrapper && !wrapper.contains(e.target)) {
+            if (suggBox) suggBox.style.display = 'none';
+        }
+    });
+
+    // Inisialisasi awal saat halaman selesai dimuat
+    document.addEventListener('DOMContentLoaded', function () {
+        filterKelasBySearch('');
+    });
+</script>
+</body>
+</html>
