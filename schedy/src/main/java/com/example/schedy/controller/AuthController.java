@@ -4,7 +4,7 @@ import com.example.schedy.entity.Users;
 import com.example.schedy.repository.UsersRepository;
 
 import jakarta.servlet.http.HttpSession;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,15 +37,32 @@ public class AuthController {
 
     @PostMapping("/login")
     public String processLogin(@RequestParam("username") String username,
-                               @RequestParam("password") String password,
-                               Model model, HttpSession session) {
+            @RequestParam("password") String password,
+            Model model, HttpSession session) {
 
-        Users user = usersRepository.findByUsernameAndPasswordHash(username, password);
+        Users user = usersRepository.findByUsername(username);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         if (user != null) {
-            // simpan user ke session
-            session.setAttribute("loggedUser", user);
-            return redirectByRole(user);
+            String saved = user.getPasswordHash();
+            boolean benar = false;
+
+            if (saved != null && saved.startsWith("$2")) {
+                benar = encoder.matches(password, saved);
+            } else if (saved != null && !saved.startsWith("pbkdf2$")) {
+                benar = password.equals(saved);
+            }
+
+            if (benar) {
+                if (!saved.startsWith("$2")) {
+                    user.setPasswordHash(encoder.encode(password));
+                    usersRepository.save(user);
+                }
+
+                session.setAttribute("loggedUser", user);
+                return redirectByRole(user);
+            }
         }
 
         model.addAttribute("error", "Username atau Password salah!");
@@ -62,10 +79,14 @@ public class AuthController {
 
     private String redirectByRole(Users user) {
         switch (user.getRole()) {
-            case "MAHASISWA": return "redirect:/mahasiswa";
-            case "DOSEN": return "redirect:/dosen";
-            case "ADMIN": return "redirect:/admin";
-            default: return "redirect:/login";
+            case "MAHASISWA":
+                return "redirect:/mahasiswa";
+            case "DOSEN":
+                return "redirect:/dosen";
+            case "ADMIN":
+                return "redirect:/admin";
+            default:
+                return "redirect:/login";
         }
     }
 }
