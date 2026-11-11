@@ -150,6 +150,8 @@ CREATE TABLE jadwal_ujian (
     id_kelas INT NOT NULL,
     tanggal DATE NOT NULL,
     jam_mulai TIME NOT NULL,
+    jenis_ujian VARCHAR(50) NULL,
+    jam_selesai TIME NULL,
     ruangan VARCHAR(100) NULL,
     CONSTRAINT fk_jadwal_ujian_kelas FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas) ON DELETE CASCADE
 );
