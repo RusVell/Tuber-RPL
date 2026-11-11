@@ -23,6 +23,12 @@ public class JadwalUjian {
     @Column(name = "jam_mulai")
     private LocalTime jamMulai;
 
+    @Column(name = "jenis_ujian", length = 50)
+    private String jenisUjian;
+
+    @Column(name = "jam_selesai")
+    private LocalTime jamSelesai;
+
     @Column(name = "ruangan", length = 100)
     private String ruangan;
 
@@ -76,6 +82,14 @@ public class JadwalUjian {
     public String getRuangan() {
         return ruangan;
     }
+
+    public String getJenisUjian() { return jenisUjian; }
+
+    public void setJenisUjian(String jenisUjian) { this.jenisUjian = jenisUjian; }
+
+    public LocalTime getJamSelesai() { return jamSelesai; }
+
+    public void setJamSelesai(LocalTime jamSelesai) { this.jamSelesai = jamSelesai; }
 
     public void setRuangan(String ruangan) {
         this.ruangan = ruangan;
