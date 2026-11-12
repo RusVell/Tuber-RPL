@@ -317,6 +317,90 @@ h1 {
     font-size: 10px;
 }
 
+.exam-card {
+    margin-top: 28px;
+}
+
+.exam-card .card-heading {
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.exam-card a {
+    color: #397340;
+    font-size: 11px;
+}
+
+.exam-description {
+    margin-bottom: 14px;
+    color: #666;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.exam-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+}
+
+.exam-field {
+    display: grid;
+    min-width: 0;
+    gap: 7px;
+}
+
+.exam-field input,
+.exam-field .field-select {
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    border: 1px solid #d5d5d5;
+    border-radius: 7px;
+    background: #fff;
+}
+
+.exam-field input {
+    padding: 0 9px;
+    font: inherit;
+    font-size: 12px;
+}
+
+.exam-field select {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.exam-submit {
+    justify-self: end;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 5px;
+    color: #17421d;
+    background: var(--green);
+}
+
+.exam-submit:disabled {
+    color: #777;
+    background: #ededed;
+    cursor: not-allowed;
+}
+
+.form-status {
+    margin: 12px 0;
+    color: #397340;
+    font-size: 12px;
+}
+
+.form-status.error {
+    color: #b53232;
+}
+
+.exam-field :focus-visible {
+    outline: 2px solid #397340;
+    outline-offset: 2px;
+}
+
 @media (max-width:700px) {
     .sidebar {
         position: static;
@@ -357,6 +441,14 @@ h1 {
 }
 
 @media (max-width:520px) {
+    .exam-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .exam-submit {
+        width: 100%;
+    }
+
     .profile-name {
         display: none;
     }
