@@ -14,6 +14,7 @@ import com.example.schedy.repository.SemesterRepository;
 import com.example.schedy.repository.KelasRepository;
 import com.example.schedy.repository.JadwalUjianRepository;
 import jakarta.servlet.http.HttpSession;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -51,8 +52,13 @@ public class AdminController {
     }
 
     @GetMapping("/admin")
-    public String dashboard(HttpSession session) {
-        return adminOnly(session, "Dashboard_Admin");
+    public String dashboard(HttpSession session, Model model) {
+        String halaman = adminOnly(session, "Dashboard_Admin");
+        if (halaman.startsWith("redirect:"))
+            return halaman;
+
+        isiPilihanSemester(session, model);
+        return halaman;
     }
 
     @GetMapping("/admin/semester")
@@ -60,13 +66,62 @@ public class AdminController {
         String view = adminOnly(session, "Kelola_Semester_Admin");
         if (view.startsWith("redirect:"))
             return view;
-        model.addAttribute("semesters", semesterRepository.findAllByOrderByIdSemesterDesc());
+        isiPilihanSemester(session, model);
         return view;
     }
 
+    @PostMapping("/admin/semester/tambah")
+    public String tambahSemester(HttpSession session,
+            @RequestParam String tahunAjaran,
+            @RequestParam String jenisSemester,
+            RedirectAttributes redirect) {
+
+        String halaman = adminOnly(session, "Kelola_Semester_Admin");
+        if (halaman.startsWith("redirect:"))
+            return halaman;
+
+        boolean tahunValid = tahunAjaran.matches("\\d{4}/\\d{4}");
+        boolean jenisValid = jenisSemester.equals("Ganjil")
+                || jenisSemester.equals("Genap");
+
+        if (tahunValid) {
+            String[] tahun = tahunAjaran.split("/");
+            tahunValid = Integer.parseInt(tahun[1]) == Integer.parseInt(tahun[0]) + 1;
+        }
+
+        if (!tahunValid || !jenisValid) {
+            redirect.addFlashAttribute("semesterError", "Data semester tidak valid.");
+            return "redirect:/admin/semester";
+        }
+
+        if (semesterRepository.existsByTahunAjaranAndJenisSemester(tahunAjaran, jenisSemester)) {
+            redirect.addFlashAttribute("semesterError", "Semester sudah terdaftar.");
+            return "redirect:/admin/semester";
+        }
+
+        Semester semester = new Semester();
+        semester.setTahunAjaran(tahunAjaran);
+        semester.setJenisSemester(jenisSemester);
+        semester.setStatusAktif(semesterRepository.count() == 0);
+
+        try {
+            semester = semesterRepository.save(semester);
+            session.setAttribute("idSemester", semester.getIdSemester());
+        } catch (DataIntegrityViolationException e) {
+            redirect.addFlashAttribute("semesterError", "Semester sudah terdaftar.");
+            return "redirect:/admin/semester";
+        }
+
+        redirect.addFlashAttribute("semesterSuccess", "Semester berhasil ditambahkan.");
+        return "redirect:/admin/semester";
+    }
+
     @GetMapping("/admin/import-csv")
-    public String importCsv(HttpSession session) {
-        return adminOnly(session, "Import_CSV_Admin");
+    public String importCsv(HttpSession session, Model model) {
+        String view = adminOnly(session, "Import_CSV_Admin");
+        if (view.startsWith("redirect:")) return view;
+        isiPilihanSemester(session, model);
+        return view;
     }
 
     @GetMapping("/admin/data-akademik")
@@ -263,27 +318,34 @@ public class AdminController {
         return value == null || value.isBlank() || value.strip().length() > max;
     }
 
-    private Integer isiDataAkademik(HttpSession session, Model model, String kategori) {
+    private Integer isiPilihanSemester(HttpSession session, Model model) {
         List<Semester> semesters = semesterRepository.findAllByOrderByIdSemesterDesc();
-        Integer selected = (Integer) session.getAttribute("idSemester");
-        Integer requested = selected;
-        if (semesters.stream().noneMatch(s -> s.getIdSemester().equals(requested))) {
-            selected = semesters.stream().filter(s -> Boolean.TRUE.equals(s.getStatusAktif()))
-                    .findFirst().or(() -> semesters.stream().findFirst()).map(Semester::getIdSemester).orElse(null);
-            if (selected != null)
-                session.setAttribute("idSemester", selected);
+        Object stored = session.getAttribute("idSemester");
+        Integer requested = stored instanceof Integer value ? value : null;
+        Integer idSemester = semesters.stream()
+                .filter(s -> s.getIdSemester().equals(requested))
+                .findFirst().or(() -> semesters.stream().filter(s -> Boolean.TRUE.equals(s.getStatusAktif())).findFirst())
+                .or(() -> semesters.stream().findFirst()).map(Semester::getIdSemester).orElse(null);
+        if (idSemester != null) {
+            session.setAttribute("idSemester", idSemester);
+        } else {
+            session.removeAttribute("idSemester");
         }
-        List<Integer> kelasIds = selected == null ? List.of()
-                : kelasRepository.findBySemester_IdSemester(selected)
-                        .stream().map(Kelas::getIdKelas).toList();
         model.addAttribute("semesters", semesters);
-        model.addAttribute("idSemester", selected);
+        model.addAttribute("idSemester", idSemester);
+
+        return idSemester;
+    }
+
+    private Integer isiDataAkademik(HttpSession session, Model model, String kategori) {
+        Integer selected = isiPilihanSemester(session, model);
+        List<Kelas> kelas = selected == null ? List.of() : kelasRepository.findBySemester_IdSemester(selected);
+        List<Integer> kelasIds = kelas.stream().map(Kelas::getIdKelas).toList();
         model.addAttribute("kategori",
                 List.of("akun", "mata-kuliah", "jadwal", "jadwal-ujian").contains(kategori) ? kategori : "akun");
         model.addAttribute("akunList", usersRepository.findAll());
         model.addAttribute("mataKuliahList", mataKuliahRepository.findAll());
-        model.addAttribute("kelasList",
-                selected == null ? List.of() : kelasRepository.findBySemester_IdSemester(selected));
+        model.addAttribute("kelasList", kelas);
         model.addAttribute("roles", AkademicDataService.ROLES);
         model.addAttribute("hariList", AkademicDataService.DAYS);
         if (!model.containsAttribute("akunForm"))
@@ -308,4 +370,5 @@ public class AdminController {
         }
         return view;
     }
+
 }
