@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MataKuliahRepository extends JpaRepository<MataKuliah, Integer> {
+    java.util.List<MataKuliah> findByKodeMatkulIgnoreCase(String kodeMatkul);
 
 }
 

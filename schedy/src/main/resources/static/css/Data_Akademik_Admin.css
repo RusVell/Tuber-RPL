@@ -186,13 +186,14 @@ select {
 }
 
 .academic-content {
-    width: min(650px, calc(100% - 64px));
+    width: min(1100px, calc(100% - 54px));
     padding: 14px 0 60px;
     margin-left: 27px;
 }
 
 .academic-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 25px;
     margin-bottom: 20px;
 }
@@ -205,6 +206,7 @@ select {
     background: transparent;
     font: 14px "Segoe UI", Arial, sans-serif;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .tab.active {
@@ -222,7 +224,7 @@ select {
 }
 
 .data-card {
-    width: 244px;
+    width: 100%;
     min-height: 143px;
     padding: 11px 10px 13px;
     border-radius: 14px;
@@ -296,8 +298,8 @@ table {
     width: 100%;
     min-width: 220px;
     border-collapse: collapse;
-    table-layout: fixed;
-    font-size: 8px;
+    table-layout: auto;
+    font-size: 13px;
 }
 
 thead {
@@ -306,14 +308,14 @@ thead {
 
 th,
 td {
-    height: 21px;
-    padding: 4px 5px;
+    height: 36px;
+    padding: 8px 10px;
     text-align: left;
     font-weight: 400;
 }
 
 th {
-    font-size: 8px;
+    font-size: 12px;
 }
 
 td {
@@ -321,19 +323,19 @@ td {
 }
 
 th:nth-child(1) {
-    width: 26%;
+    width: auto;
 }
 
 th:nth-child(2) {
-    width: 31%;
+    width: auto;
 }
 
 th:nth-child(3) {
-    width: 30%;
+    width: auto;
 }
 
 th:nth-child(4) {
-    width: 13%;
+    width: auto;
 }
 
 .action-cell {
@@ -491,6 +493,49 @@ th:nth-child(4) {
     color: #24582b;
     background: #b8eabb;
 }
+
+.data-card h1 { font-size: 20px; }
+.data-card h2 { margin-top: 28px; font-size: 17px; }
+.data-card > .add-button {
+    display: inline-block;
+    height: auto;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    text-decoration: none;
+}
+.exam-form fieldset {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    padding: 0;
+    border: 0;
+}
+.exam-form label { display: block; margin-bottom: 6px; }
+.exam-form input,
+.exam-form select {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+}
+.exam-form select { height: 38px; appearance: auto; }
+.account-credentials { padding: 12px; background: #e8ffea; border-radius: 6px; }
+.account-credentials code { overflow-wrap: anywhere; }
+.exam-form button:disabled { cursor: not-allowed; opacity: .5; }
+.exam-form button {
+    align-self: end;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    font: inherit;
+    cursor: pointer;
+}
+.form-errors { color: #a92323; }
+.form-status { color: #24582b; }
 
 @media (max-width:700px) {
     .sidebar {
