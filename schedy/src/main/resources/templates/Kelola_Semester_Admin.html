@@ -81,8 +81,8 @@
                         <label for="tahun-ajaran">Tahun Ajaran</label>
                         <div class="field-select"><select id="tahun-ajaran" name="tahunAjaran" required>
                                 <option value="" selected disabled>Masukkan Tahun Ajaran</option>
-                                <option>2025/2026</option>
-                                <option>2024/2025</option>
+                                <option th:each="tahun : ${daftarTahunAjaran}" th:value="${tahun}" th:text="${tahun}">
+                                </option>
                             </select></div>
                         <label for="semester-baru">Semester</label>
                         <div class="field-select"><select id="semester-baru" name="jenisSemester" required>

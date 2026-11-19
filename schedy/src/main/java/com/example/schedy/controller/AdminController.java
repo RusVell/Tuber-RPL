@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -67,6 +68,17 @@ public class AdminController {
         if (view.startsWith("redirect:"))
             return view;
         isiPilihanSemester(session, model);
+        int tahunSekarang = LocalDate.now().getYear();
+        int tahunTerakhir = tahunSekarang + 10;
+
+        List<String> daftarTahunAjaran = new ArrayList<>();
+
+        // Tetap menyediakan tahun lama mulai 2024.
+        for (int tahun = 2024; tahun <= tahunTerakhir; tahun++) {
+            daftarTahunAjaran.add(tahun + "/" + (tahun + 1));
+        }
+
+        model.addAttribute("daftarTahunAjaran", daftarTahunAjaran);
         return view;
     }
 
@@ -119,7 +131,8 @@ public class AdminController {
     @GetMapping("/admin/import-csv")
     public String importCsv(HttpSession session, Model model) {
         String view = adminOnly(session, "Import_CSV_Admin");
-        if (view.startsWith("redirect:")) return view;
+        if (view.startsWith("redirect:"))
+            return view;
         isiPilihanSemester(session, model);
         return view;
     }
@@ -324,7 +337,8 @@ public class AdminController {
         Integer requested = stored instanceof Integer value ? value : null;
         Integer idSemester = semesters.stream()
                 .filter(s -> s.getIdSemester().equals(requested))
-                .findFirst().or(() -> semesters.stream().filter(s -> Boolean.TRUE.equals(s.getStatusAktif())).findFirst())
+                .findFirst()
+                .or(() -> semesters.stream().filter(s -> Boolean.TRUE.equals(s.getStatusAktif())).findFirst())
                 .or(() -> semesters.stream().findFirst()).map(Semester::getIdSemester).orElse(null);
         if (idSemester != null) {
             session.setAttribute("idSemester", idSemester);
