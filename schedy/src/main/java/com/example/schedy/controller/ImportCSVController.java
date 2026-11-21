@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImportCSVController {
     private static final Logger log = LoggerFactory.getLogger(ImportCSVController.class);
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
-    private static final Set<String> TYPES = Set.of("mahasiswa", "mata-kuliah", "jadwal-kuliah", "jadwal-ujian");
+    private static final Set<String> TYPES = Set.of("mahasiswa", "mata-kuliah", "jadwal-kuliah", "jadwal-ujian","jadwal-mengawas");
 
     private final DataCSVService csvService;
     private final SemesterRepository semesters;
@@ -60,7 +60,7 @@ public class ImportCSVController {
             return fileTooLarge();
         }
         // Gunakan semester yang tampil saat halaman dibuka, termasuk jika sesi berubah di tab lain.
-        if (!"mahasiswa".equals(type) && (idSemester == null || !semesters.existsById(idSemester))) {
+        if (!"mahasiswa".equals(type) && !"jadwal-mengawas".equals(type) &&(idSemester == null || !semesters.existsById(idSemester))) {
             return failure(HttpStatus.BAD_REQUEST, "Pilih semester yang valid terlebih dahulu.");
         }
 
@@ -70,6 +70,7 @@ public class ImportCSVController {
                 case "mata-kuliah" -> csvService.importmatkul(file, idSemester);
                 case "jadwal-kuliah" -> csvService.importJadwalKuliah(file, idSemester);
                 case "jadwal-ujian" -> csvService.importjadwalujian(file, idSemester);
+                case "jadwal-mengawas" -> csvService.importjadwalujianguru(file, idSemester);
                 default -> throw new IllegalArgumentException("Jenis data CSV tidak valid.");
             }
             return ResponseEntity.ok(new ImportResult(true, "Impor CSV berhasil."));

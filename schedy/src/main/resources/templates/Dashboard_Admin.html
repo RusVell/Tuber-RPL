@@ -60,14 +60,14 @@
                     <input type="hidden" name="returnTo" th:value="@{/admin}">
                 </form>
                 <label class="semester-select" for="pilihsemester">
-                    <select name="idSemester" id="pilihsemester" form="pilih-semester-form"
-                        aria-label="Pilih semester" onchange="this.form.submit()" th:disabled="${#lists.isEmpty(semesters)}">
+                    <select name="idSemester" id="pilihsemester" form="pilih-semester-form" aria-label="Pilih semester"
+                        onchange="this.form.submit()" th:disabled="${#lists.isEmpty(semesters)}">
                         <option th:if="${#lists.isEmpty(semesters)}" value="">Belum ada semester</option>
-                            <option th:each="semester : ${semesters}" th:value="${semester.idSemester}"
-                                th:selected="${semester.idSemester == idSemester}"
-                                th:text="${'Semester ' + semester.jenisSemester + ' ' + semester.tahunAjaran}">
-                                Semester Ganjil 2024/2025
-                            </option>
+                        <option th:each="semester : ${semesters}" th:value="${semester.idSemester}"
+                            th:selected="${semester.idSemester == idSemester}"
+                            th:text="${'Semester ' + semester.jenisSemester + ' ' + semester.tahunAjaran}">
+                            Semester Ganjil 2024/2025
+                        </option>
                     </select>
                 </label>
 
@@ -120,12 +120,22 @@
                         </thead>
                         <tbody>
                             <tr th:each="jadwal: ${jadwallist}">
-                                <td th:text="${jadwal.hariTanggal}">Senin, 8 November</td>
-                                <td th:text="${jadwal.jam}">10.00 - 10.30</td>
-                                <td class="center" th:text="${jadwal.kelompok}">3</td>
-                                <!-- Gunakan th:utext jika data dari backend mengandung tag HTML seperti <br> -->
-                                <td th:utext="${jadwal.mataKuliah}">Rekayasa<br>Perangkat Lunak</td>
-                                <td th:text="${jadwal.dosen}">Budi</td>
+                                <td th:text="${#temporals.format(jadwal.slot.tanggal, 'EEEE, d MMMM yyyy')}">
+                                </td>
+                                <td
+                                    th:text="${#temporals.format(  jadwal.slot.jamMulai, 'HH.mm')}  + ' - ' +  ${#temporals.format(  jadwal.slot.jamSelesai, 'HH.mm')}">
+                                </td>
+                                <td class="center" th:text="${jadwal.kelompok.namaKelompok}">
+                                </td>
+                                <td th:text="${jadwal.kelompok.kelas.mataKuliah.namaMatkul}+ ' - Kelas ' +  ${jadwal.kelompok.kelas.namaKelas}">
+                                </td>
+                                <td th:text="${jadwal.kelompok.kelas.dosen != null   ? jadwal.kelompok.kelas.dosen.user.nama: '-'}">
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(jadwallist)}">
+                                <td colspan="5">
+                                    Belum ada jadwal presentasi pada semester ini.
+                                </td>
                             </tr>
                         </tbody>
                     </table>

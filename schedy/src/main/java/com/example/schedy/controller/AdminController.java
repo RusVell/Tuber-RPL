@@ -28,6 +28,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.example.schedy.entity.KelompokMahasiswa;
+import com.example.schedy.entity.JadwalPresentasiMahasiswa;
+import com.example.schedy.repository.KelompokMahasiswaRepository;
+import com.example.schedy.repository.JadwalPresentasiMahasiswaRepository;
+import java.util.Comparator;
 
 @Controller
 public class AdminController {
@@ -38,11 +43,14 @@ public class AdminController {
     private final MataKuliahRepository mataKuliahRepository;
     private final JadwalKuliahRepository jadwalKuliahRepository;
     private final AkademicDataService AkademicDataService;
+    private final KelompokMahasiswaRepository kelompokRepository;
+    private final JadwalPresentasiMahasiswaRepository presentasiRepository;
 
     public AdminController(SemesterRepository semesterRepository, KelasRepository kelasRepository,
             JadwalUjianRepository jadwalUjianRepository, UsersRepository usersRepository,
             MataKuliahRepository mataKuliahRepository, JadwalKuliahRepository jadwalKuliahRepository,
-            AkademicDataService AkademicDataService) {
+            AkademicDataService AkademicDataService, KelompokMahasiswaRepository kelompokMahasiswaRepository,
+            JadwalPresentasiMahasiswaRepository presentasiMahasiswaRepository) {
         this.semesterRepository = semesterRepository;
         this.kelasRepository = kelasRepository;
         this.jadwalUjianRepository = jadwalUjianRepository;
@@ -50,6 +58,8 @@ public class AdminController {
         this.mataKuliahRepository = mataKuliahRepository;
         this.jadwalKuliahRepository = jadwalKuliahRepository;
         this.AkademicDataService = AkademicDataService;
+        this.kelompokRepository = kelompokMahasiswaRepository;
+        this.presentasiRepository = presentasiMahasiswaRepository;
     }
 
     @GetMapping("/admin")
@@ -57,8 +67,56 @@ public class AdminController {
         String halaman = adminOnly(session, "Dashboard_Admin");
         if (halaman.startsWith("redirect:"))
             return halaman;
+        Integer idSemester = isiPilihanSemester(session, model);
 
-        isiPilihanSemester(session, model);
+        List<KelompokMahasiswa> kelompokList = new ArrayList<>();
+        List<JadwalPresentasiMahasiswa> jadwalList = new ArrayList<>();
+
+        if (idSemester != null) {
+            // Ambil kelas pada semester yang dipilih.
+            List<Integer> kelasIds = kelasRepository
+                    .findBySemester_IdSemester(idSemester)
+                    .stream()
+                    .map(Kelas::getIdKelas)
+                    .toList();
+
+            if (!kelasIds.isEmpty()) {
+                kelompokList = kelompokRepository
+                        .findByKelas_IdKelasIn(kelasIds);
+            }
+
+            // Ambil jadwal milik kelompok pada semester tersebut.
+            List<Integer> kelompokIds = kelompokList.stream()
+                    .map(KelompokMahasiswa::getIdKelompok)
+                    .toList();
+
+            if (!kelompokIds.isEmpty()) {
+                jadwalList.addAll(
+                        presentasiRepository
+                                .findByKelompok_IdKelompokIn(kelompokIds));
+            }
+        }
+
+        // Urutkan berdasarkan tanggal, lalu jam mulai.
+        jadwalList.sort(
+                Comparator.comparing(
+                        (JadwalPresentasiMahasiswa j) -> j.getSlot().getTanggal())
+                        .thenComparing(j -> j.getSlot().getJamMulai()));
+
+        // Hitung kelompok, bukan jumlah baris jadwal.
+        long sudahDijadwalkan = jadwalList.stream()
+                .map(j -> j.getKelompok().getIdKelompok())
+                .distinct()
+                .count();
+
+        model.addAttribute("TotalKelompok", kelompokList.size());
+        model.addAttribute("jumlahscheduled", sudahDijadwalkan);
+        model.addAttribute(
+                "jumlahunscheduled",
+                kelompokList.size() - sudahDijadwalkan);
+
+        model.addAttribute("jadwallist", jadwalList);
+
         return halaman;
     }
 
