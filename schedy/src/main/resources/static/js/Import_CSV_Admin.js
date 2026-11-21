@@ -3,7 +3,8 @@
         mahasiswa: { label: 'Akun Mahasiswa dan Dosen', header: 'nama,NPM/NIDN,role' },
         'mata-kuliah': { label: 'Mata Kuliah', header: 'kode_matkul,nama_matkul,sks,nama_kelas,nip_dosen' },
         'jadwal-kuliah': { label: 'Jadwal Kuliah', header: 'kode_matkul,nama_kelas,hari,jam_mulai,jam_selesai,ruangan' },
-        'jadwal-ujian': { label: 'Jadwal Ujian', header: 'kode_matkul,nama_kelas,jenis_ujian,tanggal,jam_mulai,jam_selesai,ruangan' }
+        'jadwal-ujian': { label: 'Jadwal Ujian', header: 'kode_matkul,nama_kelas,jenis_ujian,tanggal,jam_mulai,jam_selesai,ruangan' },
+        'jadwal-mengawas':{label:'Jadwal Mengawas Ujian Guru', header:"nip/nidn dosen, jam_mulai,jam_selesai"}
     };
     const tabs = [...document.querySelectorAll('.tab')];
     const input = document.querySelector('#csv-file');
@@ -16,7 +17,8 @@
     let uploading = false;
 
     function updateSubmit() {
-        submit.disabled = uploading || !file || (type !== 'mahasiswa' && !form.elements.idSemester.value);
+         const perluSemester = !['mahasiswa', 'jadwal-pengawas'].includes(type);
+        submit.disabled = uploading || !file || (perluSemester&& !form.elements.idSemester.value);
     }
 
     function message(text, error = false) {
@@ -113,7 +115,7 @@
     form.addEventListener('submit', async event => {
         event.preventDefault();
         if (uploading || !file) return;
-        if (type !== 'mahasiswa' && !form.elements.idSemester.value) {
+        if (!['mahasiswa', 'jadwal-pengawas'].includes(type) && !form.elements.idSemester.value) {
             message('Pilih semester terlebih dahulu.', true);
             return;
         }

@@ -42,6 +42,9 @@ public class AkademicDataService {
     public record AccountCredentials(String username, String password) {
     }
 
+    public record PengawasForm(String nip_dosen, LocalDate tanggal, LocalTime jam_mulai, LocalTime jam_selesai) {
+    }
+
     private final UsersRepository users;
     private final MahasiswaRepository mahasiswa;
     private final DosenRepository dosen;
@@ -51,10 +54,12 @@ public class AkademicDataService {
     private final KelasRepository classes;
     private final JadwalKuliahRepository schedules;
     private final JadwalUjianRepository ujianRepository;
+    private final JadwalMengawasUjianGuruRepository pengawasRepository;
 
     public AkademicDataService(UsersRepository users, MahasiswaRepository mahasiswa, DosenRepository dosen,
             AdminRepository admins, SemesterRepository semesters, MataKuliahRepository courses,
-            KelasRepository classes, JadwalKuliahRepository schedules, JadwalUjianRepository ujianRepository) {
+            KelasRepository classes, JadwalKuliahRepository schedules, JadwalUjianRepository ujianRepository,
+            JadwalMengawasUjianGuruRepository pengawasRepository) {
         this.users = users;
         this.mahasiswa = mahasiswa;
         this.dosen = dosen;
@@ -64,6 +69,54 @@ public class AkademicDataService {
         this.classes = classes;
         this.schedules = schedules;
         this.ujianRepository = ujianRepository;
+        this.pengawasRepository = pengawasRepository;
+    }
+
+    @Transactional
+    public void tambahJadwalmengawas(PengawasForm form) {
+        if (form == null || form.nip_dosen() == null || form.nip_dosen().isBlank()
+                || form.nip_dosen().strip().length() > 20 || form.tanggal() == null
+                || form.jam_mulai() == null || form.jam_selesai() == null) {
+            throw new IllegalArgumentException("Data jadwal pengawas belum lengkap atau tidak valid.");
+        }
+        if (!form.jam_selesai().isAfter(form.jam_mulai())) {
+            throw new IllegalArgumentException("Jam selesai harus setelah jam mulai.");
+        }
+
+        String nidn = form.nip_dosen().strip();
+        Dosen pengawas = dosen.findById(nidn).orElseThrow(
+                () -> new IllegalArgumentException("NIP/NIDN dosen " + nidn + " belum terdaftar."));
+
+        boolean bentrok = pengawasRepository.findByDosen_NidnAndTanggal(nidn, form.tanggal()).stream()
+                .anyMatch(j -> form.jam_mulai().isBefore(j.getJamSelesai())
+                        && form.jam_selesai().isAfter(j.getJamMulai()));
+        if (bentrok) {
+            throw new IllegalArgumentException("Jadwal mengawas dosen " + nidn
+                    + " sudah ada atau bertabrakan pada tanggal " + form.tanggal() + ".");
+        }
+
+        JadwalMengawasUjianGuru jadwal = new JadwalMengawasUjianGuru();
+        jadwal.setDosen(pengawas);
+        jadwal.setTanggal(form.tanggal());
+        jadwal.setJamMulai(form.jam_mulai());
+        jadwal.setJamSelesai(form.jam_selesai());
+        pengawasRepository.save(jadwal);
+    }
+    public void cekBentrokMengawas(String nidn,LocalDate tanggal, LocalTime jamMulai,LocalTime jamselesai){
+         if (!jamselesai.isAfter(jamMulai)) { // buat cek bentrok ngawas di controller si guru
+        throw new IllegalArgumentException(
+                "Jam selesai harus setelah jam mulai.");
+    }
+
+    for (JadwalMengawasUjianGuru jadwal :
+            pengawasRepository.findByDosen_NidnAndTanggal(nidn, tanggal)) {
+
+        if (jamMulai.isBefore(jadwal.getJamSelesai())
+                && jamselesai.isAfter(jadwal.getJamMulai())) {
+            throw new IllegalArgumentException(
+                    "Slot presentasi bentrok dengan jadwal mengawas ujian.");
+        }
+    }
     }
 
     @Transactional

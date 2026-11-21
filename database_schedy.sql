@@ -195,6 +195,16 @@ CREATE TABLE jadwal_presentasi_mahasiswa (
     CONSTRAINT fk_pres_kelompok FOREIGN KEY (id_kelompok) REFERENCES kelompok_mahasiswa(id_kelompok) ON DELETE CASCADE,
     CONSTRAINT fk_pres_slot FOREIGN KEY (id_slot) REFERENCES slot_presentasi(id_slot)
 );
+
+CREATE TABLE jadwal_mengawasujian_guru(
+    id_pengawas INT IDENTITY(1,1) PRIMARY KEY, //memastikan id terssebut unik dan tidak kosong
+    nidn VARCHAR(20) NOT NULL
+    tanggal DATE NOT NULL,
+    jam_mulai TIME NOT NULL,
+    jam_selesai TIME NOT NULL,
+    CONSTRAINT fk_pengawas dosen FOREIGN KEY (nidn) REFERENCES dosen(nidn),
+    CONSTRAINT ck_pengawas_jam CHECK (jam_selesai >jam_mulai)
+);
 GO
 
 -- ==============================================================================

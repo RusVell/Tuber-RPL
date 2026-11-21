@@ -40,7 +40,7 @@ import com.example.schedy.repository.KelompokMahasiswaRepository;
 import com.example.schedy.repository.MahasiswaRepository;
 import com.example.schedy.repository.PengambilanKelasRepository;
 import com.example.schedy.repository.SemesterRepository;
-
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -76,12 +76,13 @@ public class MahasiswaController {
     private JadwalPresentasiMahasiswaRepository jadwalPresentasiRepo;
 
     // =====================================================
-    //  DASHBOARD - PENCATATAN MATA KULIAH
+    // DASHBOARD - PENCATATAN MATA KULIAH
     // =====================================================
     @GetMapping("/mahasiswa")
     public String dashboard(HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().equals("MAHASISWA")) return "redirect:/login";
+        if (user == null || !user.getRole().equals("MAHASISWA"))
+            return "redirect:/login";
 
         Mahasiswa mhs = mahasiswaRepo.findByUser_IdUser(user.getIdUser());
         Integer idSemester = getIdSemester(session);
@@ -141,9 +142,10 @@ public class MahasiswaController {
 
     @PostMapping("/mahasiswa/matkul/tambah")
     public String tambahMatkul(@RequestParam("idKelas") Integer idKelas,
-                               HttpSession session, RedirectAttributes ra) {
+            HttpSession session, RedirectAttributes ra) {
         Users user = (Users) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().equals("MAHASISWA")) return "redirect:/login";
+        if (user == null || !user.getRole().equals("MAHASISWA"))
+            return "redirect:/login";
 
         Mahasiswa mhs = mahasiswaRepo.findByUser_IdUser(user.getIdUser());
         Integer idSemester = getIdSemester(session);
@@ -164,7 +166,8 @@ public class MahasiswaController {
         List<PengambilanKelas> kelasSudahDiambil = getPengambilan(mhs, idSemester);
         for (PengambilanKelas p : kelasSudahDiambil) {
             if (p.getKelas().getMataKuliah().getIdMatkul().equals(kelas.getMataKuliah().getIdMatkul())) {
-                ra.addFlashAttribute("error", "Mata kuliah " + kelas.getMataKuliah().getNamaMatkul() + " sudah kamu catat di kelas " + p.getKelas().getNamaKelas() + ".");
+                ra.addFlashAttribute("error", "Mata kuliah " + kelas.getMataKuliah().getNamaMatkul()
+                        + " sudah kamu catat di kelas " + p.getKelas().getNamaKelas() + ".");
                 return "redirect:/mahasiswa";
             }
         }
@@ -201,9 +204,11 @@ public class MahasiswaController {
                                 ra.addFlashAttribute("error",
                                         "Gagal menambahkan: Jadwal kuliah bentrok pada hari " + hariIndo + " ("
                                                 + start1.format(timeFormatter) + " - " + end1.format(timeFormatter)
-                                                + ") dengan mata kuliah " + jLama.getKelas().getMataKuliah().getNamaMatkul()
+                                                + ") dengan mata kuliah "
+                                                + jLama.getKelas().getMataKuliah().getNamaMatkul()
                                                 + " Kelas " + jLama.getKelas().getNamaKelas() + " ("
-                                                + start2.format(timeFormatter) + " - " + end2.format(timeFormatter) + ").");
+                                                + start2.format(timeFormatter) + " - " + end2.format(timeFormatter)
+                                                + ").");
                                 return "redirect:/mahasiswa";
                             }
                         }
@@ -243,15 +248,17 @@ public class MahasiswaController {
         baru.setKelas(kelas);
         pengambilanRepo.save(baru);
 
-        ra.addFlashAttribute("success", "Mata kuliah " + kelas.getMataKuliah().getNamaMatkul() + " Kelas " + kelas.getNamaKelas() + " berhasil ditambahkan.");
+        ra.addFlashAttribute("success", "Mata kuliah " + kelas.getMataKuliah().getNamaMatkul() + " Kelas "
+                + kelas.getNamaKelas() + " berhasil ditambahkan.");
         return "redirect:/mahasiswa";
     }
 
     @PostMapping("/mahasiswa/matkul/hapus")
     public String hapusMatkul(@RequestParam("idPengambilan") Integer idPengambilan,
-                              HttpSession session, RedirectAttributes ra) {
+            HttpSession session, RedirectAttributes ra) {
         Users user = (Users) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().equals("MAHASISWA")) return "redirect:/login";
+        if (user == null || !user.getRole().equals("MAHASISWA"))
+            return "redirect:/login";
 
         Mahasiswa mhs = mahasiswaRepo.findByUser_IdUser(user.getIdUser());
         PengambilanKelas p = pengambilanRepo.findById(idPengambilan).orElse(null);
@@ -261,7 +268,8 @@ public class MahasiswaController {
         }
 
         if (anggotaRepo.existsByIdPengambilan(idPengambilan)) {
-            ra.addFlashAttribute("error", "Mata kuliah tidak bisa dihapus karena kamu sudah terdaftar di kelompok tugas besar.");
+            ra.addFlashAttribute("error",
+                    "Mata kuliah tidak bisa dihapus karena kamu sudah terdaftar di kelompok tugas besar.");
             return "redirect:/mahasiswa";
         }
 
@@ -271,12 +279,13 @@ public class MahasiswaController {
     }
 
     // =====================================================
-    //  LIHAT JADWAL PRESENTASI
+    // LIHAT JADWAL PRESENTASI
     // =====================================================
     @GetMapping("/mahasiswa/jadwal")
     public String lihatJadwal(HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().equals("MAHASISWA")) return "redirect:/login";
+        if (user == null || !user.getRole().equals("MAHASISWA"))
+            return "redirect:/login";
 
         Mahasiswa mhs = mahasiswaRepo.findByUser_IdUser(user.getIdUser());
         Integer idSemester = getIdSemester(session);
@@ -319,13 +328,15 @@ public class MahasiswaController {
     }
 
     // =====================================================
-    //  DAFTARKAN KELOMPOK TUGAS BESAR
+    // DAFTARKAN KELOMPOK TUGAS BESAR
     // =====================================================
+    @Transactional
     @GetMapping("/mahasiswa/kelompok")
     public String kelompok(@RequestParam(value = "idKelas", required = false) Integer idKelas,
-                           HttpSession session, Model model) {
+            HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().equals("MAHASISWA")) return "redirect:/login";
+        if (user == null || !user.getRole().equals("MAHASISWA"))
+            return "redirect:/login";
 
         Mahasiswa mhs = mahasiswaRepo.findByUser_IdUser(user.getIdUser());
         Integer idSemester = getIdSemester(session);
@@ -379,14 +390,16 @@ public class MahasiswaController {
 
     @PostMapping("/mahasiswa/kelompok/submit")
     public String submitKelompok(@RequestParam("idKelompok") Integer idKelompok,
-                                 @RequestParam(value = "idPengambilan", required = false) List<Integer> idPengambilanList,
-                                 HttpSession session, RedirectAttributes ra) {
+            @RequestParam(value = "idPengambilan", required = false) List<Integer> idPengambilanList,
+            HttpSession session, RedirectAttributes ra) {
         Users user = (Users) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().equals("MAHASISWA")) return "redirect:/login";
+        if (user == null || !user.getRole().equals("MAHASISWA"))
+            return "redirect:/login";
 
         Mahasiswa mhs = mahasiswaRepo.findByUser_IdUser(user.getIdUser());
         KelompokMahasiswa kelompok = kelompokRepo.findById(idKelompok).orElse(null);
-        if (mhs == null || kelompok == null) return "redirect:/mahasiswa/kelompok";
+        if (mhs == null || kelompok == null)
+            return "redirect:/mahasiswa/kelompok";
 
         Integer idKelas = kelompok.getKelas().getIdKelas();
         String balik = "redirect:/mahasiswa/kelompok?idKelas=" + idKelas;
@@ -397,7 +410,8 @@ public class MahasiswaController {
         }
 
         Set<Integer> anggotaBaru = new LinkedHashSet<>();
-        if (idPengambilanList != null) anggotaBaru.addAll(idPengambilanList);
+        if (idPengambilanList != null)
+            anggotaBaru.addAll(idPengambilanList);
 
         for (Integer idPengambilan : anggotaBaru) {
             PengambilanKelas p = pengambilanRepo.findById(idPengambilan).orElse(null);
@@ -408,15 +422,42 @@ public class MahasiswaController {
             }
         }
 
-        boolean adaPindah = false;
+        // Hitung gabungan anggota lama dan anggota tambahan.
+        Set<Integer> anggotaAkhir = new LinkedHashSet<>();
+
+        for (AnggotaKelompok anggota : anggotaRepo.findByIdKelompok(idKelompok)) {
+            anggotaAkhir.add(anggota.getIdPengambilan());
+        }
+
+        // Periksa keanggotaan sebelum menyimpan.
         for (Integer idPengambilan : anggotaBaru) {
             AnggotaKelompok lama = anggotaRepo.findByIdPengambilan(idPengambilan);
-            if (lama != null) {
-                if (lama.getIdKelompok().equals(idKelompok)) {
-                    continue;
-                }
-                anggotaRepo.delete(lama);
-                adaPindah = true;
+
+            if (lama != null && !lama.getIdKelompok().equals(idKelompok)) {
+                ra.addFlashAttribute(
+                        "error",
+                        "Pendaftaran ditolak: mahasiswa sudah terdaftar "
+                                + "di kelompok lain.");
+                return balik;
+            }
+
+            anggotaAkhir.add(idPengambilan);
+        }
+
+        // Tolak jika jumlah akhir belum memenuhi minimum.
+        if (anggotaAkhir.size() < MIN_ANGGOTA) {
+            ra.addFlashAttribute(
+                    "error",
+                    "Pendaftaran ditolak. Minimal " + MIN_ANGGOTA
+                            + " anggota, jumlah saat ini: "
+                            + anggotaAkhir.size() + ".");
+            return balik;
+        }
+
+        // Seluruh validasi lolos, baru simpan anggota tambahan.
+        for (Integer idPengambilan : anggotaBaru) {
+            if (anggotaRepo.existsByIdPengambilan(idPengambilan)) {
+                continue;
             }
 
             AnggotaKelompok baru = new AnggotaKelompok();
@@ -426,20 +467,15 @@ public class MahasiswaController {
             anggotaRepo.save(baru);
         }
 
-        int totalSekarang = anggotaRepo.findByIdKelompok(idKelompok).size();
-        if (totalSekarang < MIN_ANGGOTA) {
-            ra.addFlashAttribute("error", "Perhatian: Kelompok ini baru memiliki " + totalSekarang + " anggota (Minimal " + MIN_ANGGOTA + " anggota).");
-        } else if (adaPindah) {
-            ra.addFlashAttribute("success", "Berhasil memperbarui dan memindahkan anggota ke " + kelompok.getNamaKelompok() + ".");
-        } else {
-            ra.addFlashAttribute("success", "Anggota berhasil disimpan ke " + kelompok.getNamaKelompok() + ".");
-        }
-
+        ra.addFlashAttribute(
+                "success",
+                "Anggota berhasil disimpan ke "
+                        + kelompok.getNamaKelompok() + ".");
         return balik;
     }
 
     // =====================================================
-    //  HELPER
+    // HELPER
     // =====================================================
 
     private Integer getIdSemester(HttpSession session) {
@@ -461,12 +497,14 @@ public class MahasiswaController {
     }
 
     private List<PengambilanKelas> getPengambilan(Mahasiswa mhs, Integer idSemester) {
-        if (mhs == null || idSemester == null) return new ArrayList<>();
+        if (mhs == null || idSemester == null)
+            return new ArrayList<>();
         return pengambilanRepo.findByMahasiswa_NpmAndKelas_Semester_IdSemester(mhs.getNpm(), idSemester);
     }
 
     private String capitalize(String str) {
-        if (str == null || str.isEmpty()) return "";
+        if (str == null || str.isEmpty())
+            return "";
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }

@@ -15,10 +15,12 @@ import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.schedy.entity.JadwalMengawasUjianGuru;
 import com.example.schedy.repository.UsersRepository;
 import com.example.schedy.service.AkademicDataService.AkunForm;
 import com.example.schedy.service.AkademicDataService.KuliahForm;
 import com.example.schedy.service.AkademicDataService.MatkulForm;
+import com.example.schedy.service.AkademicDataService.PengawasForm;
 import com.example.schedy.service.AkademicDataService.UjianForm;
 
 import jakarta.transaction.Transactional;
@@ -108,5 +110,27 @@ public class DataCSVService {
 
     private LocalTime bacaJam(String teks) {
         return LocalTime.parse(teks, JAM);
+    }
+
+    @Transactional 
+    public void importjadwalujianguru(MultipartFile file , Integer semesId){
+        try(BufferedReader filReader = new BufferedReader(
+            new InputStreamReader(file.getInputStream(),StandardCharsets.UTF_8)
+        );
+        CSVParser csvParser=new CSVParser(filReader, CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).setTrim(true).get())
+    ){
+        for(CSVRecord row: csvParser){
+             PengawasForm form = new PengawasForm(
+                    row.get("nip_dosen"),
+                    LocalDate.parse(row.get("tanggal")),
+                    bacaJam(row.get("jam_mulai")),
+                    bacaJam(row.get("jam_selesai")));
+
+            akademicDataService.tambahJadwalmengawas(form);
+        }
+    }
+    catch (IOException e) {
+        throw new RuntimeException("Gagal membaca CSV", e);
+    }
     }
 }

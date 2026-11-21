@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.example.schedy.entity.KelompokMahasiswa;
+import com.example.schedy.entity.JadwalPresentasiMahasiswa;
+import com.example.schedy.repository.KelompokMahasiswaRepository;
+import com.example.schedy.repository.JadwalPresentasiMahasiswaRepository;
+import java.util.Comparator;
 
 @Controller
 public class AdminController {
@@ -37,11 +43,14 @@ public class AdminController {
     private final MataKuliahRepository mataKuliahRepository;
     private final JadwalKuliahRepository jadwalKuliahRepository;
     private final AkademicDataService AkademicDataService;
+    private final KelompokMahasiswaRepository kelompokRepository;
+    private final JadwalPresentasiMahasiswaRepository presentasiRepository;
 
     public AdminController(SemesterRepository semesterRepository, KelasRepository kelasRepository,
             JadwalUjianRepository jadwalUjianRepository, UsersRepository usersRepository,
             MataKuliahRepository mataKuliahRepository, JadwalKuliahRepository jadwalKuliahRepository,
-            AkademicDataService AkademicDataService) {
+            AkademicDataService AkademicDataService, KelompokMahasiswaRepository kelompokMahasiswaRepository,
+            JadwalPresentasiMahasiswaRepository presentasiMahasiswaRepository) {
         this.semesterRepository = semesterRepository;
         this.kelasRepository = kelasRepository;
         this.jadwalUjianRepository = jadwalUjianRepository;
@@ -49,6 +58,8 @@ public class AdminController {
         this.mataKuliahRepository = mataKuliahRepository;
         this.jadwalKuliahRepository = jadwalKuliahRepository;
         this.AkademicDataService = AkademicDataService;
+        this.kelompokRepository = kelompokMahasiswaRepository;
+        this.presentasiRepository = presentasiMahasiswaRepository;
     }
 
     @GetMapping("/admin")
@@ -56,8 +67,56 @@ public class AdminController {
         String halaman = adminOnly(session, "Dashboard_Admin");
         if (halaman.startsWith("redirect:"))
             return halaman;
+        Integer idSemester = isiPilihanSemester(session, model);
 
-        isiPilihanSemester(session, model);
+        List<KelompokMahasiswa> kelompokList = new ArrayList<>();
+        List<JadwalPresentasiMahasiswa> jadwalList = new ArrayList<>();
+
+        if (idSemester != null) {
+            // Ambil kelas pada semester yang dipilih.
+            List<Integer> kelasIds = kelasRepository
+                    .findBySemester_IdSemester(idSemester)
+                    .stream()
+                    .map(Kelas::getIdKelas)
+                    .toList();
+
+            if (!kelasIds.isEmpty()) {
+                kelompokList = kelompokRepository
+                        .findByKelas_IdKelasIn(kelasIds);
+            }
+
+            // Ambil jadwal milik kelompok pada semester tersebut.
+            List<Integer> kelompokIds = kelompokList.stream()
+                    .map(KelompokMahasiswa::getIdKelompok)
+                    .toList();
+
+            if (!kelompokIds.isEmpty()) {
+                jadwalList.addAll(
+                        presentasiRepository
+                                .findByKelompok_IdKelompokIn(kelompokIds));
+            }
+        }
+
+        // Urutkan berdasarkan tanggal, lalu jam mulai.
+        jadwalList.sort(
+                Comparator.comparing(
+                        (JadwalPresentasiMahasiswa j) -> j.getSlot().getTanggal())
+                        .thenComparing(j -> j.getSlot().getJamMulai()));
+
+        // Hitung kelompok, bukan jumlah baris jadwal.
+        long sudahDijadwalkan = jadwalList.stream()
+                .map(j -> j.getKelompok().getIdKelompok())
+                .distinct()
+                .count();
+
+        model.addAttribute("TotalKelompok", kelompokList.size());
+        model.addAttribute("jumlahscheduled", sudahDijadwalkan);
+        model.addAttribute(
+                "jumlahunscheduled",
+                kelompokList.size() - sudahDijadwalkan);
+
+        model.addAttribute("jadwallist", jadwalList);
+
         return halaman;
     }
 
@@ -67,6 +126,17 @@ public class AdminController {
         if (view.startsWith("redirect:"))
             return view;
         isiPilihanSemester(session, model);
+        int tahunSekarang = LocalDate.now().getYear();
+        int tahunTerakhir = tahunSekarang + 10;
+
+        List<String> daftarTahunAjaran = new ArrayList<>();
+
+        // Tetap menyediakan tahun lama mulai 2024.
+        for (int tahun = 2024; tahun <= tahunTerakhir; tahun++) {
+            daftarTahunAjaran.add(tahun + "/" + (tahun + 1));
+        }
+
+        model.addAttribute("daftarTahunAjaran", daftarTahunAjaran);
         return view;
     }
 
@@ -119,7 +189,8 @@ public class AdminController {
     @GetMapping("/admin/import-csv")
     public String importCsv(HttpSession session, Model model) {
         String view = adminOnly(session, "Import_CSV_Admin");
-        if (view.startsWith("redirect:")) return view;
+        if (view.startsWith("redirect:"))
+            return view;
         isiPilihanSemester(session, model);
         return view;
     }
@@ -324,7 +395,8 @@ public class AdminController {
         Integer requested = stored instanceof Integer value ? value : null;
         Integer idSemester = semesters.stream()
                 .filter(s -> s.getIdSemester().equals(requested))
-                .findFirst().or(() -> semesters.stream().filter(s -> Boolean.TRUE.equals(s.getStatusAktif())).findFirst())
+                .findFirst()
+                .or(() -> semesters.stream().filter(s -> Boolean.TRUE.equals(s.getStatusAktif())).findFirst())
                 .or(() -> semesters.stream().findFirst()).map(Semester::getIdSemester).orElse(null);
         if (idSemester != null) {
             session.setAttribute("idSemester", idSemester);
