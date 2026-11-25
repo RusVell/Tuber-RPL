@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <aside class="sidebar" th:fragment="sidebar(menu)">
+        <div class="Logo">Schedy</div>
+
+        <nav class="menu">
+            <a th:href="@{/Dosen/Dashboard}" class="menu-item" th:classappend="${menu == 'Dashboard'} ? 'active'">
+                <span class="material-symbols-outlined">Dashboard</span>
+                Pengelolaan Kelompok
+            </a>
+            <a th:href="@{/Dosen/PenetapanJadwal}" class="menu-item"
+                th:classappend="${menu == 'PenetapanJadwal'} ? 'active'">
+                <span class="material-symbols-outlined">a</span>
+                Penetapan Jadwal
+            </a>
+            <a th:href="@{/Dosen/JadwalPresentasi}" class="menu-item"
+                th:classappend="${menu == 'JadwalPresentasi'} ? 'active'">
+                <span class="material-symbols-outlined">b</span>
+                Jadwal Presentasi
+            </a>
+        </nav>
+
+        <a th:href="@{/logout}" class="menu-item logout" onclick="return confirm('Apakah anda yakin ingin log out?')">
+            <span class="material-symbols-outlined">logout</span>
+            Log Out
+        </a>
+    </aside>
+
+    <!-- ================= TOPBAR ================= -->
+    <header class="topbar" th:fragment="topbar">
+        <form th:action="@{/semester/pilih}" method="post" class="semester-form">
+            <select name="idSemester" class="semester-select" onchange="this.form.submit()">
+                <option th:if="${#lists.isEmpty(semesterList)}" value="">Belum ada semester</option>
+                <option th:each="s : ${semesterList}" th:value="${s.idSemester}"
+                    th:selected="${s.idSemester == idSemester}"
+                    th:text="'Semester ' + ${s.jenisSemester} + ' ' + ${#strings.substring(s.tahunAjaran, 2, 4)} + '/' + ${#strings.substring(s.tahunAjaran, 7, 9)}">
+                    Semester Ganjil 24/25
+                </option>
+            </select>
+        </form>
+
+        <div class="profile">
+            <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(namaUser, 0, 1))}">N</div>
+            <div class="profile-text">
+                <span class="profile-name" th:text="${namaUser}">Nama</span>
+                <span class="profile-role">Dosen</span>
+            </div>
+        </div>
+    </header>
+</body>
+
+</html>

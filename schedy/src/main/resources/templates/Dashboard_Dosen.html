@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300,0,0"
+        rel="stylesheet">
+
+    <title>Document</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/Dashboard_Dosen.css}">
+</head>
+
+<body>
+    <div class="layout">
+        <aside th:replace="~{fragments/layoutDosen :: sidebar('Dashboard')}"></aside>
+
+        <div class="main">
+            <header th:replace="~{fragments/layoutDosen :: topbar}"></header>
+
+            <main class="content">
+                <h2>Pengelolaan Kelompok Tugas Besar</h2>
+
+                <section id="kelola">
+                    <form action="">
+                        <h3>Buat Kelompok Untuk Tugas Besar</h3>
+                        <div id="input">
+                            <div>
+                                <div class="wrapper-input">
+                                    <div class="Text">Mata Kuliah & Kelas</div>
+                                    <select name="matKul_kelas" id="matkul_kelas">
+                                        <option value="" disabled selected>Pilih Mata Kuliah & Kelas</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                                <div class="wrapper-input">
+                                    <div class="Text">Minimal Jumlah Anggota Kelompok</div>
+                                    <input type="text" class="input-dosen" placeholder="Masukkan jumlah minimal anggota kelompok">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="wrapper-input">
+                                    <div class="Text">Nama Kelompok</div>
+                                    <input type="text" class="input-dosen" placeholder="Masukkan nama kelompok">
+                                </div>
+                                <div class="wrapper-input">
+                                    <div class="Text">Maximal Jumlah Anggota Kelompok</div>
+                                    <input type="text" class="input-dosen"
+                                        placeholder="Masukkan jumlah maximal anggota kelompok">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button class="btn-tambahKelompok">+ Tambahkan Kelompok</button>
+                        </div>
+                    </form>
+                </section>
+
+                <h3>Kelompok Pada Semester Aktif</h3>
+                <ul id="list-kelompok">
+                    <li th:each="kelompok :${daftarKelompok}">
+                        <span class="text-kelompok" th:text="${kelompok.kelas.namaKelas}">Kelas</span>
+                        <h4 th:text="${kelompok.namaKelompok}">Nama Kelompok</h4>
+                        <span class="text-kelompok" th:text="${kelompok.kelas.mataKuliah.namaMatkul}">Dasar Pemrograman</span>
+                        <span class="rules-invalid">Anggota Masih kurang</span>
+                    </li>
+                </ul>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

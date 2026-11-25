@@ -82,7 +82,7 @@ public class AuthController {
             case "MAHASISWA":
                 return "redirect:/mahasiswa";
             case "DOSEN":
-                return "redirect:/dosen";
+                return "redirect:/dosen/dashboard";
             case "ADMIN":
                 return "redirect:/admin";
             default:
