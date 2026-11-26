@@ -18,6 +18,15 @@ public class KelompokMahasiswa {
     @Column(name = "nama_kelompok", length = 100)
     private String namaKelompok;
 
+    @Column(name = "min_kelompok")
+    private Integer minKelompok;
+
+    @Column(name = "max_kelompok")
+    private Integer maxKelompok;
+
+    @Transient
+    private Integer jumlahAnggotaKelompok;
+
     public KelompokMahasiswa() {}
 
     public Integer getIdKelompok() {
@@ -34,6 +43,30 @@ public class KelompokMahasiswa {
 
     public void setKelas(Kelas kelas) {
         this.kelas = kelas;
+    }
+
+    public Integer getMinKelompok() {
+        return this.minKelompok;
+    }
+
+    public void setMinKelompok(Integer minKelompok) {
+        this.minKelompok = minKelompok;
+    }
+
+    public Integer getMaxKelompok() {
+        return this.maxKelompok;
+    }
+
+    public Integer getJumlahAnggota() {
+        return this.jumlahAnggotaKelompok;
+    }
+
+    public void setJumlahAnggota(Integer jumlahAnggotaKelompok) {
+        this.jumlahAnggotaKelompok = jumlahAnggotaKelompok;
+    }
+
+    public void setMaxKelompok(Integer maxKelompok) {
+        this.maxKelompok = maxKelompok;
     }
 
     public String getNamaKelompok() {

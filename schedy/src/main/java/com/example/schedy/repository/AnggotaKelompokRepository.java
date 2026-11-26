@@ -16,6 +16,8 @@ public interface AnggotaKelompokRepository extends JpaRepository<AnggotaKelompok
 
     List<AnggotaKelompok> findByIdPengambilanIn(List<Integer> idPengambilan);
 
+    Integer countByIdKelompokAndIdKelas(Integer idKelompok, Integer idKelas);
+
     boolean existsByIdPengambilan(Integer idPengambilan);
 
     AnggotaKelompok findByIdPengambilan(Integer idPengambilan);

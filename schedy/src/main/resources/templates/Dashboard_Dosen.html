@@ -26,55 +26,99 @@
                 <h2>Pengelolaan Kelompok Tugas Besar</h2>
 
                 <section id="kelola">
-                    <form action="">
-                        <h3>Buat Kelompok Untuk Tugas Besar</h3>
+                    <h3>Buat Kelompok Untuk Tugas Besar</h3>
+                    <form th:action="@{/dosen/dashboard/buatKelompok}" method="post" id="form">
                         <div id="input">
                             <div>
                                 <div class="wrapper-input">
                                     <div class="Text">Mata Kuliah & Kelas</div>
-                                    <select name="matKul_kelas" id="matkul_kelas">
+                                    <select class="input-dosen" name="idKelas" id="idKelas" required>
                                         <option value="" disabled selected>Pilih Mata Kuliah & Kelas</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
+                                        <option th:each="kelas : ${daftarKelas}" th:value="${kelas.idKelas}"
+                                            th:text="|${kelas.mataKuliah.namaMatkul} Kelas ${kelas.namaKelas}|">Mata
+                                            Kuliah & Kelas</option>
                                     </select>
                                 </div>
                                 <div class="wrapper-input">
-                                    <div class="Text">Minimal Jumlah Anggota Kelompok</div>
-                                    <input type="text" class="input-dosen" placeholder="Masukkan jumlah minimal anggota kelompok">
+                                    <label class="Text" for="minAnggota">Minimal Jumlah Anggota Kelompok</label>
+                                    <input type="number" min="1" max="2" class="input-dosen" id="minAnggota"
+                                        name="minAnggota" placeholder="Masukkan jumlah minimal anggota kelompok"
+                                        required>
                                 </div>
                             </div>
                             <div>
                                 <div class="wrapper-input">
-                                    <div class="Text">Nama Kelompok</div>
-                                    <input type="text" class="input-dosen" placeholder="Masukkan nama kelompok">
+                                    <label class="Text" for="namaKelompok">Nama Kelompok</label>
+                                    <input type="text" minlength="3" maxlength="10" class="input-dosen"
+                                        id="namaKelompok" name="namaKelompok" placeholder="Masukkan nama kelompok"
+                                        required>
                                 </div>
                                 <div class="wrapper-input">
-                                    <div class="Text">Maximal Jumlah Anggota Kelompok</div>
-                                    <input type="text" class="input-dosen"
-                                        placeholder="Masukkan jumlah maximal anggota kelompok">
+                                    <label class="Text" for="maxAnggota">Maximal Jumlah Anggota Kelompok</label>
+                                    <input type="number" min="3" max="6" class="input-dosen" id="maxAnggota"
+                                        name="maxAnggota" placeholder="Masukkan jumlah maximal anggota kelompok"
+                                        required>
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <button class="btn-tambahKelompok">+ Tambahkan Kelompok</button>
+                            <button class="btn-tambahKelompok" type="submit">+ Tambahkan Kelompok</button>
                         </div>
                     </form>
                 </section>
 
                 <h3>Kelompok Pada Semester Aktif</h3>
+
+                <form th:action="@{/dosen/dashboard}" method="get">
+                    <div class="wrapper-input">
+                        <div class="Text">Mata Kuliah &amp; Kelas</div>
+                        <select class="input-dosen" name="filterIdKelas" id="filterIdKelas"
+                            onchange="this.form.submit()">
+                            <option value="" disabled selected>Pilih Mata Kuliah &amp; Kelas</option>
+                            <option th:each="kelas : ${daftarKelas}" th:value="${kelas.idKelas}"
+                                th:text="|${kelas.mataKuliah.namaMatkul} Kelas ${kelas.namaKelas}|"
+                                th:selected="${kelas.idKelas == selectedIdKelas}"></option>
+                        </select>
+                    </div>
+                </form>
+
                 <ul id="list-kelompok">
-                    <li th:each="kelompok :${daftarKelompok}">
-                        <span class="text-kelompok" th:text="${kelompok.kelas.namaKelas}">Kelas</span>
+                    <li th:each="kelompok :${daftarKelompok}" style="cursor: pointer;"
+                        onclick="tampilkanDetailKelompok(this)">
+                        <span class="text-kelompok"
+                            th:text="|${kelompok.kelas.mataKuliah.kodeMatkul} - Kelas ${kelompok.kelas.namaKelas}|">Kelas</span>
                         <h4 th:text="${kelompok.namaKelompok}">Nama Kelompok</h4>
-                        <span class="text-kelompok" th:text="${kelompok.kelas.mataKuliah.namaMatkul}">Dasar Pemrograman</span>
-                        <span class="rules-invalid">Anggota Masih kurang</span>
+                        <span class="text-kelompok" th:text="${kelompok.kelas.mataKuliah.namaMatkul}">Dasar
+                            Pemrograman</span>
+                        <span class="rules-invalid">
+                            <div class="rules-wrapp"
+                                th:text="${kelompok.jumlahAnggota < kelompok.minKelompok} ? |Belum Lengkap (min ${kelompok.minKelompok} Anggota)| : 'Anggota Tercukupi'"
+                                th:style="${kelompok.jumlahAnggota < kelompok.minKelompok} ? 'background-color: #F3DA4D;' : 'background-color: #c8eec4;'">
+                                Anggota Masih kurang
+                            </div>
+                        </span>
                     </li>
                 </ul>
+
+                <dialog id="detailKelompok">
+                    <button type="button" onclick="document.getElementById('detailKelompok').close()">Close</button>
+                    
+                </dialog>
             </main>
         </div>
     </div>
+
+    <script>
+        document.getElementById('form').addEventListener('submit', function (e) {
+            e.preventDefault;
+            alert('Kelompok Berhasil Ditambahkan');
+        });
+
+        function tampilkanDetailKelompok() {
+            document.getElementById('detailKelompok').showModal();
+        }
+    </script>
 </body>
 
 </html>
