@@ -364,13 +364,15 @@ public class MahasiswaController {
 
         if (idKelas != null) {
             kelompokList = kelompokRepo.findByKelas_IdKelas(idKelas);
+            List<Integer> idKelompokList = new ArrayList<>();
 
             for (KelompokMahasiswa k : kelompokList) {
                 anggotaPerKelompok.put(k.getIdKelompok(), new ArrayList<>());
+                idKelompokList.add(k.getIdKelompok());
             }
 
-            for (AnggotaKelompok a : anggotaRepo.findByIdKelas(idKelas)) {
-                if (anggotaPerKelompok.containsKey(a.getIdKelompok())) {
+            if (!idKelompokList.isEmpty()) {
+                for (AnggotaKelompok a : anggotaRepo.findByIdKelompokIn(idKelompokList)) {
                     anggotaPerKelompok.get(a.getIdKelompok()).add(a);
                 }
             }
@@ -401,7 +403,7 @@ public class MahasiswaController {
         if (mhs == null || kelompok == null)
             return "redirect:/mahasiswa/kelompok";
 
-        Integer idKelas = kelompok.getKelas().getIdKelas();
+            Integer idKelas = kelompok.getKelas().getIdKelas();
         String balik = "redirect:/mahasiswa/kelompok?idKelas=" + idKelas;
 
         if (pengambilanRepo.findByMahasiswa_NpmAndKelas_IdKelas(mhs.getNpm(), idKelas) == null) {
@@ -463,7 +465,7 @@ public class MahasiswaController {
             AnggotaKelompok baru = new AnggotaKelompok();
             baru.setIdKelompok(idKelompok);
             baru.setIdPengambilan(idPengambilan);
-            baru.setIdKelas(idKelas);
+            baru.setNPM(mhs.getNpm());
             anggotaRepo.save(baru);
         }
 
