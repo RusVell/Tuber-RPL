@@ -1,16 +1,21 @@
 package com.example.schedy.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.schedy.entity.AnggotaKelompok;
 import com.example.schedy.entity.Dosen;
@@ -23,8 +28,10 @@ import com.example.schedy.repository.AnggotaKelompokRepository;
 import com.example.schedy.repository.DosenRepository;
 import com.example.schedy.repository.KelasRepository;
 import com.example.schedy.repository.KelompokMahasiswaRepository;
+import com.example.schedy.repository.MahasiswaRepository;
 import com.example.schedy.repository.MataKuliahRepository;
 import com.example.schedy.repository.SemesterRepository;
+import com.example.schedy.repository.UsersRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -46,6 +53,12 @@ public class DosenController {
     @Autowired
     private AnggotaKelompokRepository anggotaKelompokRepository;
 
+    @Autowired
+    private UsersRepository usersRepository;
+
+    @Autowired
+    private MahasiswaRepository mahasiswaRepository;
+
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(required = false) Integer filterIdKelas, HttpSession session, Model model) {
         Users user = (Users) session.getAttribute("loggedUser");
@@ -65,8 +78,7 @@ public class DosenController {
         }
 
         for (KelompokMahasiswa k : daftarKelompok) {
-            Integer jumlahAnggota = anggotaKelompokRepository.countByIdKelompokAndIdKelas(k.getIdKelompok(),
-                    k.getKelas().getIdKelas());
+            Integer jumlahAnggota = anggotaKelompokRepository.countByIdKelompok(k.getIdKelompok());
             k.setJumlahAnggota(jumlahAnggota);
         }
 
@@ -103,6 +115,31 @@ public class DosenController {
         kelompokMahasiswaRepository.save(newKelompok);
 
         return "redirect:/dosen/dashboard";
+    }
+
+    @GetMapping("/detailKelompok/{idKelompok}")
+    @ResponseBody
+    public ResponseEntity<?> detailKelompok(@PathVariable Integer idKelompok, HttpSession session) {
+        Users user = (Users) session.getAttribute("loggedUser");
+        if (user == null || !user.getRole().equals("DOSEN"))
+            return null;
+
+        List<AnggotaKelompok> anggotaKelompok = anggotaKelompokRepository.findByIdKelompok(idKelompok);
+
+        List<Map<String, String>> daftarAnggota = new ArrayList<>();
+
+        for (AnggotaKelompok anggota : anggotaKelompok) {
+            String npm = anggota.getNpm();
+            Integer idUser = mahasiswaRepository.findIdUserByNpm(npm);
+            String name = (usersRepository.findByIdUser(idUser).getNama());
+            
+            Map<String, String> mahasiswa = new HashMap<>();
+            mahasiswa.put("npm", npm);
+            mahasiswa.put("nama", name);
+            daftarAnggota.add(mahasiswa);
+        }
+
+        return ResponseEntity.ok(daftarAnggota);
     }
 
     private Integer getIdSemester(HttpSession session) {
