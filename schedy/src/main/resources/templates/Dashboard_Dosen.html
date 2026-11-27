@@ -85,7 +85,8 @@
 
                 <ul id="list-kelompok">
                     <li th:each="kelompok :${daftarKelompok}" style="cursor: pointer;"
-                        onclick="tampilkanDetailKelompok(this)">
+                        th:attr="data-id=${kelompok.idKelompok}"
+                        th:onclick="|tampilkanDetailKelompok(${kelompok.idKelompok})|">
                         <span class="text-kelompok"
                             th:text="|${kelompok.kelas.mataKuliah.kodeMatkul} - Kelas ${kelompok.kelas.namaKelas}|">Kelas</span>
                         <h4 th:text="${kelompok.namaKelompok}">Nama Kelompok</h4>
@@ -102,8 +103,13 @@
                 </ul>
 
                 <dialog id="detailKelompok">
-                    <button type="button" onclick="document.getElementById('detailKelompok').close()">Close</button>
-                    
+                    <div>
+                        <button class="close-btn" type="button" onclick="document.getElementById('detailKelompok').close()">X</button>
+                    </div>
+                    <div>
+                        <span id="nama-kelompok">Daftar Anggota Kelompok</span>
+                    </div>
+                    <ul id="list-anggota"></ul>
                 </dialog>
             </main>
         </div>
@@ -111,12 +117,47 @@
 
     <script>
         document.getElementById('form').addEventListener('submit', function (e) {
-            e.preventDefault;
+            e.preventDefault();
             alert('Kelompok Berhasil Ditambahkan');
         });
 
-        function tampilkanDetailKelompok() {
+        const daftarAnggota = document.getElementById('list-anggota');
+        const namaKelompok = document.getElementById('nama-kelompok');
+
+        function tambahAnggota(anggota) {
+            const li = document.createElement('li');
+            li.textContent = `${anggota.npm} - ${anggota.nama}`;
+            daftarAnggota.appendChild(li);
+        }
+
+        //jika gagal mengambil data anggota atau jika kelompok masih kosong
+        function tambahPemberitahuan(pesan) {
+            const li = document.createElement('li');
+            li.textContent = pesan;
+            daftarAnggota.appendChild(li);
+        }
+
+        async function tampilkanDetailKelompok(idKelompok) {
+            daftarAnggota.innerHTML = '';
+            const getNamaKelompok = document.querySelector(`li[data-id="${idKelompok}"] > h4`).textContent;
+
             document.getElementById('detailKelompok').showModal();
+            namaKelompok.textContent = getNamaKelompok;
+
+            try {
+                const respon = await fetch(`/dosen/detailKelompok/${idKelompok}`)
+                if (!respon.ok) throw new Error('Status ' + respon.status);
+                const anggotaKelompok = await respon.json();
+
+                if (anggotaKelompok.length === 0) {
+                    tambahPemberitahuan("Belum Ada Anggota");
+                    return;
+                }
+
+                anggotaKelompok.forEach(a => tambahAnggota(a));
+            } catch (err) {
+                tambahPemberitahuan("Gagal memuat anggota");
+            }
         }
     </script>
 </body>
