@@ -2,6 +2,8 @@ package com.example.schedy.repository;
 
 import com.example.schedy.entity.AnggotaKelompok;
 import com.example.schedy.entity.AnggotaKelompokId;
+import com.example.schedy.entity.Mahasiswa;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,11 +14,11 @@ public interface AnggotaKelompokRepository extends JpaRepository<AnggotaKelompok
 
     List<AnggotaKelompok> findByIdKelompok(Integer idKelompok);
 
-    List<AnggotaKelompok> findByIdKelas(Integer idKelas);
-
     List<AnggotaKelompok> findByIdPengambilanIn(List<Integer> idPengambilan);
 
-    Integer countByIdKelompokAndIdKelas(Integer idKelompok, Integer idKelas);
+    List<AnggotaKelompok> findByIdKelompokIn(List<Integer> ideKelompok);
+
+    Integer countByIdKelompok(Integer idKelompok);
 
     boolean existsByIdPengambilan(Integer idPengambilan);
 

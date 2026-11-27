@@ -15,8 +15,8 @@ public class AnggotaKelompok {
     @Column(name = "id_pengambilan", unique = true)
     private Integer idPengambilan;
 
-    @Column(name = "id_kelas")
-    private Integer idKelas;
+    @Column(name = "npm")
+    private String npm;
 
     @ManyToOne
     @JoinColumn(name = "id_pengambilan", referencedColumnName = "id_pengambilan",
@@ -41,12 +41,12 @@ public class AnggotaKelompok {
         this.idPengambilan = idPengambilan;
     }
 
-    public Integer getIdKelas() {
-        return idKelas;
+    public String getNpm() {
+        return this.npm;
     }
 
-    public void setIdKelas(Integer idKelas) {
-        this.idKelas = idKelas;
+    public void setNPM(String npm) {
+        this.npm = npm;
     }
 
     public PengambilanKelas getPengambilan() {
