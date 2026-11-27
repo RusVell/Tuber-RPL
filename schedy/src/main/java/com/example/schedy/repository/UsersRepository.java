@@ -12,5 +12,7 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     // Untuk login
     Users findByUsernameAndPasswordHash(String username, String passwordHash);
 
+    Users findByIdUser(Integer idUser);
+
 }
 
