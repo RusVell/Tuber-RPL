@@ -9,21 +9,21 @@
 
 <body>
     <aside class="sidebar" th:fragment="sidebar(menu)">
-        <div class="Logo">Schedy</div>
+        <div class="logo">Schedy</div>
 
         <nav class="menu">
-            <a th:href="@{/Dosen/Dashboard}" class="menu-item" th:classappend="${menu == 'Dashboard'} ? 'active'">
-                <span class="material-symbols-outlined">Dashboard</span>
+            <a th:href="@{/dosen/dashboard}" class="menu-item" th:classappend="${menu == 'Dashboard'} ? 'active'">
+                <span class="material-symbols-outlined">dashboard</span>
                 Pengelolaan Kelompok
             </a>
-            <a th:href="@{/Dosen/PenetapanJadwal}" class="menu-item"
+            <a th:href="@{/dosen/penetapanJadwal}" class="menu-item"
                 th:classappend="${menu == 'PenetapanJadwal'} ? 'active'">
-                <span class="material-symbols-outlined">a</span>
+                <span class="material-symbols-outlined">calendar_add_on</span>
                 Penetapan Jadwal
             </a>
             <a th:href="@{/Dosen/JadwalPresentasi}" class="menu-item"
                 th:classappend="${menu == 'JadwalPresentasi'} ? 'active'">
-                <span class="material-symbols-outlined">b</span>
+                <span class="material-symbols-outlined">calendar_month</span>
                 Jadwal Presentasi
             </a>
         </nav>
