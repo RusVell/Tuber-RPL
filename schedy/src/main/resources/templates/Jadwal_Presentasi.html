@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300,0,0"
+      rel="stylesheet"
+    />
+    <title>Master Jadwal Presentasi</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/Jadwal_Presentasi.css}" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside
+        th:replace="~{fragments/layoutDosen :: sidebar('JadwalPresentasi')}"
+      ></aside>
+
+      <div class="main">
+        <header th:replace="~{fragments/layoutDosen :: topbar}"></header>
+
+        <main class="content">
+          <h2>Master Jadwal Presentasi</h2>
+
+          <section class="filter-card">
+            <form th:action="@{/dosen/JadwalPresentasi}" method="get">
+              <div class="filter-group">
+                <label for="filterIdSemester">Semester</label>
+                <select
+                  id="filterIdSemester"
+                  name="filterIdSemester"
+                  onchange="this.form.submit()"
+                >
+                  <option value="">Pilih Semester</option>
+                  <option
+                    th:each="semester : ${daftarSemester}"
+                    th:value="${semester.idSemester}"
+                    th:text="${semester.namaSemester}"
+                    th:selected="${semester.idSemester == selectedIdSemester}"
+                  ></option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="filterIdMatkul">Pilih Mata Kuliah</label>
+                <select
+                  id="filterIdMatkul"
+                  name="filterIdMatkul"
+                  onchange="this.form.submit()"
+                >
+                  <option value="">Semua Mata Kuliah</option>
+                  <option
+                    th:each="matkul : ${daftarMataKuliah}"
+                    th:value="${matkul.idMatkul}"
+                    th:text="|${matkul.kodeMatkul} - ${matkul.namaMatkul}|"
+                    th:selected="${matkul.idMatkul == selectedIdMatkul}"
+                  ></option>
+                </select>
+              </div>
+            </form>
+          </section>
+
+          <section class="calendar-section">
+            <div class="calendar-toolbar">
+              <h3>Jadwal Presentasi</h3>
+
+              <div class="calendar-navigation">
+                <a
+                  th:href="@{/dosen/JadwalPresentasi(
+             tanggal=${mingguSebelumnya},
+             filterIdSemester=${selectedIdSemester},
+             filterIdMatkul=${selectedIdMatkul})}"
+                >
+                  &lt;
+                </a>
+
+                <a
+                  th:href="@{/dosen/JadwalPresentasi(
+             filterIdSemester=${selectedIdSemester},
+             filterIdMatkul=${selectedIdMatkul})}"
+                >
+                  Minggu ini
+                </a>
+
+                <a
+                  th:href="@{/dosen/JadwalPresentasi(
+             tanggal=${mingguBerikutnya},
+             filterIdSemester=${selectedIdSemester},
+             filterIdMatkul=${selectedIdMatkul})}"
+                >
+                  &gt;
+                </a>
+              </div>
+            </div>
+
+            <div class="calendar-period">
+              <span
+                th:text="${#temporals.format(tanggalAwalMinggu, 'dd MMM yyyy')}"
+              >
+                23 Nov 2026
+              </span>
+              -
+              <span
+                th:text="${#temporals.format(tanggalAkhirMinggu, 'dd MMM yyyy')}"
+              >
+                27 Nov 2026
+              </span>
+            </div>
+
+            <div class="calendar-grid">
+              <div class="calendar-corner">JAM</div>
+
+              <div
+                class="calendar-day"
+                th:each="hari : ${daftarHari}"
+                th:text="${hari.dayOfWeek.value == 1 ? 'Senin' :
+                     hari.dayOfWeek.value == 2 ? 'Selasa' :
+                     hari.dayOfWeek.value == 3 ? 'Rabu' :
+                     hari.dayOfWeek.value == 4 ? 'Kamis' : 'Jumat'}"
+              >
+                Senin
+              </div>
+
+              <div
+                class="calendar-time"
+                th:each="waktu, iterStat : ${daftarWaktu}"
+                th:text="${waktu}"
+                th:style="'grid-row: ' + (iterStat.count + 1) + '; grid-column: 1;'"
+              >
+                08:00
+              </div>
+
+              <div
+                class="schedule-card"
+                th:each="slot : ${daftarSlot}"
+                th:style="'grid-column: ' + (slot.tanggal.dayOfWeek.value + 1)
+       + '; grid-row: ' +
+       (2 + ((slot.jamMulai.hour - 8) * 2) +
+       (slot.jamMulai.minute / 30)) +
+       ' / span ' + ((slot.durasiMenit + 29) / 30)"
+              >
+                <strong
+                  th:text="|${slot.kelas.mataKuliah.kodeMatkul} - Kelas ${slot.kelas.namaKelas}|"
+                >
+                  IF2101 - Kelas A
+                </strong>
+
+                <span
+                  class="schedule-course"
+                  th:text="${slot.kelas.mataKuliah.namaMatkul}"
+                >
+                  Nama Mata Kuliah
+                </span>
+
+                <span
+                  class="schedule-group"
+                  th:if="${penetapanPerSlot[slot.idSlot] != null}"
+                  th:text="${penetapanPerSlot[slot.idSlot].kelompok.namaKelompok}"
+                >
+                  Kelompok 1
+                </span>
+
+                <span
+                  class="schedule-group"
+                  th:unless="${penetapanPerSlot[slot.idSlot] != null}"
+                >
+                  (kosong)
+                </span>
+
+                <strong
+                  class="schedule-time"
+                  th:text="|${#temporals.format(slot.jamMulai, 'HH.mm')} - ${#temporals.format(slot.jamSelesai, 'HH.mm')} WIB|"
+                >
+                  08.00 - 09.00 WIB
+                </strong>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

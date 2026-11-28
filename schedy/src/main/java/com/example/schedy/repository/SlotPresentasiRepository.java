@@ -4,6 +4,7 @@ import com.example.schedy.entity.SlotPresentasi;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -11,5 +12,9 @@ public interface SlotPresentasiRepository extends JpaRepository<SlotPresentasi, 
 
     List<SlotPresentasi> findByKelas_IdKelas(Integer idKelas);
 
+    List<SlotPresentasi> findByKelas_IdKelasInAndTanggalBetween(
+            List<Integer> idKelas,
+            LocalDate tanggalMulai,
+            LocalDate tanggalSelesai
+    );
 }
-

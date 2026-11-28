@@ -11,5 +11,6 @@ public interface JadwalPresentasiMahasiswaRepository extends JpaRepository<Jadwa
 
     List<JadwalPresentasiMahasiswa> findByKelompok_IdKelompokIn(List<Integer> idKelompok);
 
+    List<JadwalPresentasiMahasiswa> findBySlot_IdSlotIn(List<Integer> idSlot);
 }
 

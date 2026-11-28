@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,10 @@ import com.example.schedy.repository.MahasiswaRepository;
 import com.example.schedy.repository.MataKuliahRepository;
 import com.example.schedy.repository.SemesterRepository;
 import com.example.schedy.repository.UsersRepository;
+import com.example.schedy.entity.SlotPresentasi;
+import com.example.schedy.entity.JadwalPresentasiMahasiswa;
+import com.example.schedy.repository.SlotPresentasiRepository;
+import com.example.schedy.repository.JadwalPresentasiMahasiswaRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -58,6 +65,12 @@ public class DosenController {
 
     @Autowired
     private MahasiswaRepository mahasiswaRepository;
+
+    @Autowired
+    private SlotPresentasiRepository slotPresentasiRepository;
+
+    @Autowired
+    private JadwalPresentasiMahasiswaRepository jadwalPresentasiMahasiswaRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(required = false) Integer filterIdKelas, HttpSession session, Model model) {
@@ -89,6 +102,135 @@ public class DosenController {
         isiTopbar(model, user, idSemester);
 
         return "Dashboard_Dosen";
+    }
+
+    @GetMapping("/JadwalPresentasi")
+    public String jadwalPresentasi(
+            @RequestParam(required = false) Integer filterIdSemester,
+            @RequestParam(required = false) Integer filterIdMatkul,
+            @RequestParam(required = false) LocalDate tanggal,
+            HttpSession session,
+            Model model) {
+
+        Users user = (Users) session.getAttribute("loggedUser");
+
+        if (user == null || !user.getRole().equals("DOSEN")) {
+            return "redirect:/login";
+        }
+
+        Dosen dosen = dosenRepo.findByUser_IdUser(user.getIdUser());
+
+        Integer idSemester = filterIdSemester != null
+                ? filterIdSemester
+                : getIdSemester(session);
+
+        List<Semester> daftarSemester = semesterRepo.findAllByOrderByIdSemesterDesc();
+
+        model.addAttribute("daftarSemester", daftarSemester);
+        model.addAttribute("selectedIdSemester", idSemester);
+
+        List<Kelas> daftarKelas = kelasRepository.findByDosen_NidnAndSemester_idSemester(
+                dosen.getNidn(),
+                idSemester);
+
+        model.addAttribute("daftarKelas", daftarKelas);
+
+        List<MataKuliah> daftarMataKuliah = new ArrayList<>();
+
+        for (Kelas kelas : daftarKelas) {
+            MataKuliah mataKuliah = kelas.getMataKuliah();
+
+            if (mataKuliah != null && daftarMataKuliah.stream()
+                    .noneMatch(m -> m.getIdMatkul().equals(mataKuliah.getIdMatkul()))) {
+                daftarMataKuliah.add(mataKuliah);
+            }
+        }
+
+        model.addAttribute("daftarMataKuliah", daftarMataKuliah);
+
+        model.addAttribute("selectedIdMatkul", filterIdMatkul);
+
+        LocalDate tanggalReferensi = tanggal != null ? tanggal : LocalDate.now();
+
+        LocalDate tanggalAwalMinggu = tanggalReferensi.with(
+                TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        LocalDate tanggalAkhirMinggu = tanggalAwalMinggu.plusDays(4);
+
+        LocalDate mingguSebelumnya = tanggalAwalMinggu.minusWeeks(1);
+        LocalDate mingguBerikutnya = tanggalAwalMinggu.plusWeeks(1);
+
+        List<Integer> idKelas = new ArrayList<>();
+
+        for (Kelas kelas : daftarKelas) {
+            if (filterIdMatkul == null ||
+                    (kelas.getMataKuliah() != null &&
+                            kelas.getMataKuliah().getIdMatkul().equals(filterIdMatkul))) {
+
+                idKelas.add(kelas.getIdKelas());
+            }
+        }
+
+        List<SlotPresentasi> daftarSlot = new ArrayList<>();
+
+        if (!idKelas.isEmpty()) {
+            daftarSlot = slotPresentasiRepository.findByKelas_IdKelasInAndTanggalBetween(
+                    idKelas,
+                    tanggalAwalMinggu,
+                    tanggalAkhirMinggu);
+        }
+
+        model.addAttribute("daftarSlot", daftarSlot);
+
+        List<Integer> idSlot = new ArrayList<>();
+
+        for (SlotPresentasi slot : daftarSlot) {
+            idSlot.add(slot.getIdSlot());
+        }
+
+        List<JadwalPresentasiMahasiswa> daftarPenetapan = new ArrayList<>();
+
+        if (!idSlot.isEmpty()) {
+            daftarPenetapan = jadwalPresentasiMahasiswaRepository.findBySlot_IdSlotIn(idSlot);
+        }
+
+        model.addAttribute("daftarPenetapan", daftarPenetapan);
+
+        Map<Integer, JadwalPresentasiMahasiswa> penetapanPerSlot = new HashMap<>();
+
+        for (JadwalPresentasiMahasiswa penetapan : daftarPenetapan) {
+            penetapanPerSlot.put(
+                    penetapan.getSlot().getIdSlot(),
+                    penetapan);
+        }
+
+        model.addAttribute("penetapanPerSlot", penetapanPerSlot);
+
+        List<LocalDate> daftarHari = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            daftarHari.add(tanggalAwalMinggu.plusDays(i));
+        }
+
+        model.addAttribute("daftarHari", daftarHari);
+
+        List<String> daftarWaktu = new ArrayList<>();
+
+        for (int jam = 8; jam < 17; jam++) {
+            daftarWaktu.add(String.format("%02d:00", jam));
+            daftarWaktu.add(String.format("%02d:30", jam));
+        }
+
+        model.addAttribute("daftarWaktu", daftarWaktu);
+
+        model.addAttribute("tanggalAwalMinggu", tanggalAwalMinggu);
+        model.addAttribute("tanggalAkhirMinggu", tanggalAkhirMinggu);
+        model.addAttribute("mingguSebelumnya", mingguSebelumnya);
+        model.addAttribute("mingguBerikutnya", mingguBerikutnya);
+
+        isiTopbar(model, user, getIdSemester(session));
+
+        return "Jadwal_Presentasi";
     }
 
     @PostMapping("/dashboard/buatKelompok")
@@ -132,7 +274,7 @@ public class DosenController {
             String npm = anggota.getNpm();
             Integer idUser = mahasiswaRepository.findIdUserByNpm(npm);
             String name = (usersRepository.findByIdUser(idUser).getNama());
-            
+
             Map<String, String> mahasiswa = new HashMap<>();
             mahasiswa.put("npm", npm);
             mahasiswa.put("nama", name);
