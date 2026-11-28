@@ -132,7 +132,7 @@ public class DosenController {
             String npm = anggota.getNpm();
             Integer idUser = mahasiswaRepository.findIdUserByNpm(npm);
             String name = (usersRepository.findByIdUser(idUser).getNama());
-            
+
             Map<String, String> mahasiswa = new HashMap<>();
             mahasiswa.put("npm", npm);
             mahasiswa.put("nama", name);
@@ -152,6 +152,22 @@ public class DosenController {
             }
         }
         return idSemester;
+    }
+
+    @GetMapping("/penetapanJadwal")
+    public String penetapanJadwal(HttpSession session, Model model) {
+        Users user = (Users) session.getAttribute("loggedUser");
+        if (user == null || !user.getRole().equals("DOSEN"))
+            return "redirect:/login";
+
+        Dosen dosen = dosenRepo.findByUser_IdUser(user.getIdUser());
+        Integer idSemester = getIdSemester(session);
+
+        List<Kelas> daftarKelas = kelasRepository.findByDosen_NidnAndSemester_idSemester(dosen.getNidn(), idSemester);
+
+        isiTopbar(model, user, idSemester);
+
+        return "PenetapanJadwal";
     }
 
     private void isiTopbar(Model model, Users user, Integer idSemester) {
